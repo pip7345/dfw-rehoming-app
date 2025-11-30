@@ -31,7 +31,8 @@ export const PacksRepo = {
             data: {
                 lister_id: data.lister_id,
                 name: data.name,
-                description: data.description
+                description: data.description,
+                cloudinary_public_ids: data.cloudinary_public_ids || []
             },
             include: { pets: true }
         });

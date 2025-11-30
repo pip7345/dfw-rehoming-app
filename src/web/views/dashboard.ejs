@@ -14,10 +14,10 @@
 
   <div class="dashboard-grid">
     <aside class="sidebar" id="profile-sidebar">
-      <button type="button" id="profile-toggle" class="btn btn-secondary" style="width:100%; margin-bottom: 0.75rem; display:flex; align-items:center; justify-content:space-between;">
+      <div id="profile-toggle" style="cursor:pointer; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); font-size:1.1rem; font-weight:600; padding:0.25rem 0;">
         <span>Profile & Contact Settings</span>
         <span id="profile-toggle-icon">▾</span>
-      </button>
+      </div>
       <div id="profile-content">
         <form class="contact-form" id="profile-form">
           <div class="form-group">
@@ -28,29 +28,29 @@
             <label>About You</label>
             <textarea name="about" rows="4" placeholder="Tell potential adopters about yourself..."><%= lister && lister.about ? lister.about : '' %></textarea>
           </div>
-          <hr style="margin:1rem 0; border-color: var(--border);" />
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value="<%= contactPrefs && contactPrefs.email ? contactPrefs.email : user.email %>" />
-          </div>
+          <div class="contact-section" style="margin-top:1rem;">
+            <h3 style="margin:0 0 0.5rem;">Contact Info</h3>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value="<%= contactPrefs && contactPrefs.email ? contactPrefs.email : user.email %>" />
+            </div>
             <div class="form-group">
               <label class="checkbox-label">
                 <input type="checkbox" name="show_email" <%= contactPrefs && contactPrefs.show_email ? 'checked' : '' %> />
                 Show email publicly
               </label>
             </div>
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" name="phone" value="<%= contactPrefs && contactPrefs.phone ? contactPrefs.phone : '' %>" placeholder="(555) 123-4567" />
-          </div>
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" name="show_phone" <%= contactPrefs && contactPrefs.show_phone ? 'checked' : '' %> />
-              Show phone publicly
-            </label>
-          </div>
-          <div class="contact-section">
-            <h3 style="margin-top:0.75rem;">Facebook Messenger</h3>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" name="phone" value="<%= contactPrefs && contactPrefs.phone ? contactPrefs.phone : '' %>" placeholder="(555) 123-4567" />
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="show_phone" <%= contactPrefs && contactPrefs.show_phone ? 'checked' : '' %> />
+                Show phone publicly
+              </label>
+            </div>
+            <h3 style="margin:0.75rem 0 0.5rem;">Facebook Messenger</h3>
             <div class="form-group">
               <label>Messenger Username</label>
               <input type="text" name="messenger_username" value="<%= contactPrefs && contactPrefs.messenger_username ? contactPrefs.messenger_username : '' %>" placeholder="your.username" />
@@ -94,7 +94,7 @@
                   <h3 class="pack-name">
                     <%= pack.name %>
                     <% if (hasUnpaidPets) { %>
-                      <span class="pending-payment-badge">⏳ Pending Payment</span>
+                      <span class="pending-payment-badge">Pending Payment</span>
                     <% } %>
                   </h3>
                 </div>
@@ -727,7 +727,7 @@
       const widget = cloudinary.createUploadWidget({
         cloudName: CLOUDINARY_CLOUD,
         uploadPreset: CLOUDINARY_PRESET,
-        sources: ['local', 'camera'],
+        sources: ['local', 'camera', 'google_drive'],
         multiple: true,
         maxFiles: 10,
         resourceType: 'image',

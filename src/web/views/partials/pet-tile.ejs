@@ -79,7 +79,7 @@
           <span class="pet-tile-tag"><%= pet.size %></span>
         <% } %>
         <% if (pet.gender && pet.gender !== 'unspecified') { %>
-          <span class="pet-tile-tag"><%= pet.gender === 'male' ? '♂ Male' : '♀ Female' %></span>
+          <span class="pet-tile-tag"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
         <% } %>
         <% if (isUnpaid) { %>
           <span class="pet-tile-tag" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 500;">⚠️ Payment Pending</span>

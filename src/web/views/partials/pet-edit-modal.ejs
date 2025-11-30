@@ -264,7 +264,7 @@
     const widget = cloudinary.createUploadWidget({
       cloudName: CLOUDINARY_CLOUD,
       uploadPreset: CLOUDINARY_PRESET,
-      sources: ['local', 'camera'],
+      sources: ['local', 'camera', 'google_drive'],
       multiple: true,
       maxFiles: 10,
       resourceType: 'image',

@@ -105,12 +105,13 @@ model Listers {
 }
 
 model Packs {
-  id          String   @id @default(uuid())
-  lister_id   String
-  name        String
-  description String?  @db.Text
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  lister_id             String
+  name                  String
+  description           String?  @db.Text
+  cloudinary_public_ids String[] @default([])
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
   
   lister      Listers       @relation(fields: [lister_id], references: [id], onDelete: Cascade)
   pets        Pets[]

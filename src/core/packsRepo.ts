@@ -4,11 +4,13 @@ export interface CreatePackData {
   lister_id: string;
   name: string;
   description?: string;
+  cloudinary_public_ids?: string[];
 }
 
 export interface UpdatePackData {
   name?: string;
   description?: string | null;
+  cloudinary_public_ids?: string[];
 }
 
 export const PacksRepo = {
@@ -46,7 +48,8 @@ export const PacksRepo = {
       data: {
         lister_id: data.lister_id,
         name: data.name,
-        description: data.description
+        description: data.description,
+        cloudinary_public_ids: data.cloudinary_public_ids || []
       },
       include: { pets: true }
     });

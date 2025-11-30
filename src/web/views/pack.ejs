@@ -5,8 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= pack.name %> - DFW Dog Rehoming</title>
   <link href="/tailwind.css" rel="stylesheet" />
+  <style>
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .lightbox.active {
+      display: flex;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 3rem;
+      cursor: pointer;
+      padding: 1rem;
+      user-select: none;
+    }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+  </style>
 </head>
 <body class="bg-bg-primary text-text-primary">
+  <script>
+    // Define functions early so onclick handlers work
+    window.openLightbox = function(index) {
+      window._lightboxIndex = index;
+      if (window._lightboxReady) window._doOpenLightbox(index);
+    };
+    window.closeLightbox = function() { if (window._doCloseLightbox) window._doCloseLightbox(); };
+    window.prevPhoto = function() { if (window._doPrevPhoto) window._doPrevPhoto(); };
+    window.nextPhoto = function() { if (window._doNextPhoto) window._doNextPhoto(); };
+  </script>
   <%- include('partials/nav-bar', { user }) %>
 
   <div class="max-w-6xl mx-auto p-6">
@@ -52,6 +104,39 @@
       <p class="text-text-secondary">No pets listed in this pack yet.</p>
     <% } %>
 
+    <!-- Photo Gallery Section -->
+    <%
+      // Collect all photos: pack photos + all pet photos
+      const packPhotos = pack.cloudinary_public_ids || [];
+      const petPhotos = [];
+      if (pack.pets) {
+        pack.pets.forEach(pet => {
+          if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) {
+            pet.cloudinary_public_ids.forEach(photoId => {
+              petPhotos.push({ id: photoId, petName: pet.name || 'Pet' });
+            });
+          }
+        });
+      }
+      const allPhotos = [...packPhotos.map(id => ({ id, petName: null })), ...petPhotos];
+    %>
+    <% if (allPhotos.length > 0) { %>
+      <div class="card mb-6">
+        <h3 class="text-xl font-semibold text-text-primary mb-4">Photo Gallery</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <% allPhotos.forEach((photo, index) => { %>
+            <div class="cursor-pointer" onclick="openLightbox(<%= index %>)">
+              <img 
+                src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_200,h_150/<%= photo.id %>.jpg" 
+                alt="<%= photo.petName ? photo.petName : 'Gallery photo' %>"
+                class="w-full aspect-[4/3] object-cover rounded-lg hover:opacity-80 transition-opacity"
+              />
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
     <!-- Contact Lister Section -->
     <div class="card">
       <h3 class="text-xl font-semibold text-text-primary mb-4">
@@ -86,11 +171,86 @@
       </div>
     </div>
   </div>
+
+  <!-- Lightbox for gallery -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <span class="lightbox-nav lightbox-prev" onclick="prevPhoto()">&#10094;</span>
+    <img id="lightbox-img" src="" alt="Gallery photo" />
+    <span class="lightbox-nav lightbox-next" onclick="nextPhoto()">&#10095;</span>
+  </div>
   
   <%- include('partials/pet-details-modal') %>
 
   <script>
     const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
+    <%
+      // Rebuild allPhotos for script context
+      const scriptPackPhotos = pack.cloudinary_public_ids || [];
+      const scriptPetPhotos = [];
+      if (pack.pets) {
+        pack.pets.forEach(pet => {
+          if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) {
+            pet.cloudinary_public_ids.forEach(photoId => {
+              scriptPetPhotos.push(photoId);
+            });
+          }
+        });
+      }
+      const scriptAllPhotos = [...scriptPackPhotos, ...scriptPetPhotos];
+    %>
+    const allGalleryPhotos = <%- JSON.stringify(scriptAllPhotos) %>;
+    let currentPhotoIndex = 0;
+
+    window._doOpenLightbox = function(index) {
+      currentPhotoIndex = index;
+      updateLightboxImage();
+      document.getElementById('lightbox').classList.add('active');
+    };
+
+    window._doCloseLightbox = function() {
+      document.getElementById('lightbox').classList.remove('active');
+    };
+
+    function updateLightboxImage() {
+      const photoId = allGalleryPhotos[currentPhotoIndex];
+      document.getElementById('lightbox-img').src = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${photoId}.jpg`;
+    }
+
+    window._doPrevPhoto = function() {
+      currentPhotoIndex = (currentPhotoIndex - 1 + allGalleryPhotos.length) % allGalleryPhotos.length;
+      updateLightboxImage();
+    };
+
+    window._doNextPhoto = function() {
+      currentPhotoIndex = (currentPhotoIndex + 1) % allGalleryPhotos.length;
+      updateLightboxImage();
+    };
+
+    // Re-assign public functions now that implementation is ready
+    window.openLightbox = window._doOpenLightbox;
+    window.closeLightbox = window._doCloseLightbox;
+    window.prevPhoto = window._doPrevPhoto;
+    window.nextPhoto = window._doNextPhoto;
+    window._lightboxReady = true;
+
+    // If user clicked before ready, open now
+    if (typeof window._lightboxIndex !== 'undefined') {
+      window._doOpenLightbox(window._lightboxIndex);
+    }
+
+    // Close lightbox on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') prevPhoto();
+      if (e.key === 'ArrowRight') nextPhoto();
+    });
+
+    // Close lightbox when clicking outside image
+    document.getElementById('lightbox')?.addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox') closeLightbox();
+    });
+
     function openImage(id) {
       const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${id}.jpg`;
       window.open(url, '_blank');

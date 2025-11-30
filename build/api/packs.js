@@ -40,14 +40,15 @@ router.post('/', async (req, res) => {
     try {
         // Get or create lister for user
         const lister = await ListersRepo.getOrCreate(user.id);
-        const { name, description } = req.body;
+        const { name, description, cloudinary_public_ids } = req.body;
         if (!name) {
             return res.status(400).json({ ok: false, error: 'Pack name is required' });
         }
         const pack = await PacksRepo.create({
             lister_id: lister.id,
             name,
-            description
+            description,
+            cloudinary_public_ids: cloudinary_public_ids || []
         });
         res.status(201).json({ ok: true, pack });
     }
@@ -62,11 +63,15 @@ router.put('/:id', async (req, res) => {
         return res.status(401).json({ ok: false, error: 'Not authenticated' });
     }
     try {
-        const { name, description } = req.body;
-        const pack = await PacksRepo.update(req.params.id, {
-            name,
-            description
-        });
+        const { name, description, cloudinary_public_ids } = req.body;
+        const updateData = {};
+        if (name !== undefined)
+            updateData.name = name;
+        if (description !== undefined)
+            updateData.description = description;
+        if (cloudinary_public_ids !== undefined)
+            updateData.cloudinary_public_ids = cloudinary_public_ids;
+        const pack = await PacksRepo.update(req.params.id, updateData);
         res.json({ ok: true, pack });
     }
     catch (error) {

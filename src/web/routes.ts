@@ -123,6 +123,7 @@ router.get('/create-pack', async (req, res) => {
       packId: pack?.id || '',
       packName: pack?.name || '',
       packDescription: pack?.description || '',
+      packCloudinaryIds: pack?.cloudinary_public_ids || [],
       isSinglePet: false,
       pets,
       cloudinaryCloud: CLOUDINARY_CLOUD,
@@ -162,7 +163,6 @@ router.get('/pack/:id', async (req, res) => {
     
     // Extract contact info from JSON field
     const contactPrefs = (lister?.contact_preferences as Record<string, any>) || {};
-    console.log('Pack page - contactPrefs from DB:', JSON.stringify(contactPrefs, null, 2));
     const listerContact = {
       name: lister?.display_name || lister?.user?.display_name || 'Lister',
       display_name: lister?.display_name || lister?.user?.display_name || null,
@@ -175,7 +175,6 @@ router.get('/pack/:id', async (req, res) => {
       messenger_username: contactPrefs.messenger_username || null,
       location: lister?.location
     };
-    console.log('Pack page - listerContact being sent to view:', JSON.stringify(listerContact, null, 2));
     
     res.render('pack', {
       user: (req as any).user || null,

@@ -240,7 +240,7 @@
     </div>
 
     <!-- Pets Section -->
-    <div class="card">
+    <div class="card mb-8">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-text-primary m-0">Pets</h2>
       </div>
@@ -262,6 +262,41 @@
         <% } %>
       </div>
     </div>
+
+    <!-- Pack Gallery Section -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-text-primary m-0">Pack Gallery</h2>
+        <button type="button" class="btn btn-primary" onclick="openPackGalleryWidget()">+ Add Photos</button>
+      </div>
+      <p class="text-text-secondary text-sm mb-4">Add additional photos for your pack listing. These will appear in a gallery alongside pet photos.</p>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="pack-gallery-grid">
+        <% 
+          const packPhotos = (typeof packCloudinaryIds !== 'undefined' && packCloudinaryIds) ? packCloudinaryIds : [];
+          if (packPhotos.length > 0) { 
+            packPhotos.forEach((photoId, index) => { 
+        %>
+          <div class="relative group" data-photo-index="<%= index %>">
+            <img 
+              src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_200,h_150/<%= photoId %>.jpg" 
+              alt="Pack photo <%= index + 1 %>"
+              class="w-full aspect-[4/3] object-cover rounded-lg cursor-pointer"
+              onclick="openPackPhoto('<%= photoId %>')"
+            />
+            <button 
+              type="button" 
+              class="absolute top-2 right-2 bg-danger text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity"
+              onclick="removePackPhoto(<%= index %>)"
+            >×</button>
+          </div>
+        <% }); } else { %>
+          <div class="col-span-full text-center py-8 text-text-muted" id="empty-gallery-message">
+            <p>No gallery photos yet. Click "+ Add Photos" to add some.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
   </div>
 
   <%- include('partials/pet-edit-modal') %>
@@ -271,7 +306,9 @@
     const API_URL = '/api';
     const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
     const CLOUDINARY_PRESET = '<%= cloudinaryPreset || "unsigned_preset" %>';
+    const CLOUDINARY_PAD_RGB = '<%= cloudinaryPadRgb || "d1d5db" %>';
     let currentPackId = '<%= packId || "" %>';
+    let packGalleryPhotos = <%= JSON.stringify((typeof packCloudinaryIds !== 'undefined' && packCloudinaryIds) ? packCloudinaryIds : []) %>;
 
     // Set flag for pet details modal to show edit button
     window.isListerView = true;
@@ -343,7 +380,8 @@
       
       const data = {
         name: packName || 'My Pet Listing',
-        description: isSinglePet ? '' : packDescription
+        description: isSinglePet ? '' : packDescription,
+        cloudinary_public_ids: packGalleryPhotos
       };
       
       try {
@@ -486,6 +524,92 @@
     // Initialize single pet toggle on load
     if (document.getElementById('pack-single-pet').checked) {
       toggleSinglePet();
+    }
+
+    // Pack Gallery Functions
+    function openPackGalleryWidget() {
+      if (!CLOUDINARY_CLOUD) {
+        showToast('✗ Cloudinary not configured', 'error');
+        return;
+      }
+      
+      const widget = cloudinary.createUploadWidget({
+        cloudName: CLOUDINARY_CLOUD,
+        uploadPreset: CLOUDINARY_PRESET,
+        sources: ['local', 'camera', 'google_drive'],
+        multiple: true,
+        maxFiles: 20,
+        resourceType: 'image',
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 10000000,
+        folder: 'packs',
+        tags: ['pack', 'gallery'],
+        transformation: [
+          { height: 600, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }
+        ],
+        styles: {
+          palette: {
+            window: '#1a1d26',
+            windowBorder: '#374151',
+            tabIcon: '#3b82f6',
+            menuIcons: '#9ca3af',
+            textDark: '#0f1117',
+            textLight: '#f3f4f6',
+            link: '#3b82f6',
+            action: '#10b981',
+            inactiveTabIcon: '#6b7280',
+            error: '#ef4444',
+            inProgress: '#3b82f6',
+            complete: '#10b981',
+            sourceBg: '#252830'
+          }
+        }
+      }, (error, result) => {
+        if (result.event === 'success') {
+          packGalleryPhotos.push(result.info.public_id);
+          updatePackGalleryGrid();
+          showToast('✓ Photo added to gallery!', 'success');
+        }
+      });
+      widget.open();
+    }
+
+    function updatePackGalleryGrid() {
+      const grid = document.getElementById('pack-gallery-grid');
+      if (packGalleryPhotos.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-8 text-text-muted" id="empty-gallery-message">
+            <p>No gallery photos yet. Click "+ Add Photos" to add some.</p>
+          </div>
+        `;
+      } else {
+        grid.innerHTML = packGalleryPhotos.map((photoId, index) => `
+          <div class="relative group" data-photo-index="${index}">
+            <img 
+              src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_pad,b_rgb:${CLOUDINARY_PAD_RGB},w_200,h_150/${photoId}.jpg" 
+              alt="Pack photo ${index + 1}"
+              class="w-full aspect-[4/3] object-cover rounded-lg cursor-pointer"
+              onclick="openPackPhoto('${photoId}')"
+            />
+            <button 
+              type="button" 
+              class="absolute top-2 right-2 bg-danger text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity"
+              onclick="removePackPhoto(${index})"
+            >×</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    function removePackPhoto(index) {
+      packGalleryPhotos.splice(index, 1);
+      updatePackGalleryGrid();
+      showToast('✓ Photo removed from gallery', 'info');
+    }
+
+    function openPackPhoto(photoId) {
+      const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${photoId}.jpg`;
+      window.open(url, '_blank');
     }
   </script>
 </body>

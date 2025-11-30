@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PetsRepo } from '../core/petsRepo.js';
-import type { PetAge, PetSize, PetType } from '@prisma/client';
+import type { PetAge, PetSize, PetType, PetGender } from '@prisma/client';
 
 const router = Router();
 
@@ -13,6 +13,7 @@ router.get('/search', async (req, res) => {
       age,
       animal_type,
       size,
+      gender,
       min_price,
       max_price,
       sort,
@@ -26,6 +27,7 @@ router.get('/search', async (req, res) => {
       age: age as PetAge,
       animal_type: animal_type as PetType,
       size: size as PetSize,
+      gender: gender as PetGender,
       minPrice: min_price ? parseFloat(min_price as string) : undefined,
       maxPrice: max_price ? parseFloat(max_price as string) : undefined,
       sortBy: (sort as 'newest' | 'oldest' | 'expiring' | 'price_low' | 'price_high') || 'newest',
@@ -67,6 +69,7 @@ router.post('/', async (req, res) => {
       animal_type,
       breed,
       size,
+      gender,
       rehoming_fee,
       status,
       custom_availability_date,
@@ -86,6 +89,7 @@ router.post('/', async (req, res) => {
       animal_type,
       breed,
       size,
+      gender,
       rehoming_fee: rehoming_fee !== undefined ? parseFloat(rehoming_fee) : undefined,
       status,
       custom_availability_date: custom_availability_date ? new Date(custom_availability_date) : undefined,
@@ -114,6 +118,7 @@ router.put('/:id', async (req, res) => {
       animal_type,
       breed,
       size,
+      gender,
       rehoming_fee,
       status,
       custom_availability_date,
@@ -128,6 +133,7 @@ router.put('/:id', async (req, res) => {
       animal_type,
       breed,
       size,
+      gender,
       rehoming_fee: rehoming_fee !== undefined ? parseFloat(rehoming_fee) : undefined,
       status,
       custom_availability_date: custom_availability_date ? new Date(custom_availability_date) : null,

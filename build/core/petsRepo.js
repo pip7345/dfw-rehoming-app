@@ -13,7 +13,7 @@ export const PetsRepo = {
         });
     },
     async search(params) {
-        const { query, breed, age, animal_type, size, minPrice, maxPrice, includeHidden = false, includeExpired = false, sortBy = 'newest', limit = 50, offset = 0 } = params;
+        const { query, breed, age, animal_type, size, gender, minPrice, maxPrice, includeHidden = false, includeExpired = false, sortBy = 'newest', limit = 50, offset = 0 } = params;
         const where = {
             AND: []
         };
@@ -55,6 +55,14 @@ export const PetsRepo = {
             if (q.includes('other') || q.includes('bird') || q.includes('rabbit') || q.includes('hamster')) {
                 typeMatches.push('other');
             }
+            // Gender keyword mapping
+            const genderMatches = [];
+            if (q.includes('male') || q.includes('boy')) {
+                genderMatches.push('male');
+            }
+            if (q.includes('female') || q.includes('girl')) {
+                genderMatches.push('female');
+            }
             const searchConditions = [
                 { name: { contains: query, mode: 'insensitive' } },
                 { breed: { contains: query, mode: 'insensitive' } },
@@ -68,6 +76,9 @@ export const PetsRepo = {
             }
             if (typeMatches.length > 0) {
                 searchConditions.push({ animal_type: { in: typeMatches } });
+            }
+            if (genderMatches.length > 0) {
+                searchConditions.push({ gender: { in: genderMatches } });
             }
             where.AND.push({ OR: searchConditions });
         }
@@ -83,6 +94,9 @@ export const PetsRepo = {
         }
         if (size) {
             where.AND.push({ size });
+        }
+        if (gender) {
+            where.AND.push({ gender });
         }
         // Price range filter
         if (minPrice !== undefined && minPrice !== null) {
@@ -141,6 +155,7 @@ export const PetsRepo = {
                 animal_type: data.animal_type || 'dog',
                 breed: data.breed,
                 size: data.size,
+                gender: data.gender || 'male',
                 rehoming_fee: data.rehoming_fee ?? 50,
                 status: data.status || 'available',
                 custom_availability_date: data.custom_availability_date,

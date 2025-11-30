@@ -54,7 +54,17 @@
 
     <!-- Contact Lister Section -->
     <div class="card">
-      <h3 class="text-xl font-semibold text-text-primary mb-4">Contact Lister</h3>
+      <h3 class="text-xl font-semibold text-text-primary mb-4">
+        <% if (typeof lister !== 'undefined' && lister && lister.display_name) { %>
+          About <%= lister.display_name %>
+        <% } else { %>
+          Contact Lister
+        <% } %>
+      </h3>
+      
+      <% if (typeof lister !== 'undefined' && lister && lister.about) { %>
+        <p class="text-text-secondary mb-4 whitespace-pre-line"><%= lister.about %></p>
+      <% } %>
       
       <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_messenger && contactPrefs.messenger_username) { %>
         <a 

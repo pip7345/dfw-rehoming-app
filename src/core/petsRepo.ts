@@ -6,6 +6,7 @@ type PetStatus = $Enums.PetStatus;
 type PetAge = $Enums.PetAge;
 type PetSize = $Enums.PetSize;
 type PetType = $Enums.PetType;
+type PetGender = $Enums.PetGender;
 
 export interface CreatePetData {
   pack_id?: string;
@@ -15,6 +16,7 @@ export interface CreatePetData {
   animal_type?: PetType;
   breed?: string;
   size?: PetSize;
+  gender?: PetGender;
   rehoming_fee?: number;
   status?: PetStatus;
   custom_availability_date?: Date;
@@ -29,6 +31,7 @@ export interface UpdatePetData {
   animal_type?: PetType;
   breed?: string;
   size?: PetSize;
+  gender?: PetGender;
   rehoming_fee?: number;
   status?: PetStatus;
   custom_availability_date?: Date | null;
@@ -44,6 +47,7 @@ export interface SearchPetsParams {
   age?: PetAge;
   animal_type?: PetType;
   size?: PetSize;
+  gender?: PetGender;
   minPrice?: number;
   maxPrice?: number;
   includeHidden?: boolean;
@@ -75,6 +79,7 @@ export const PetsRepo = {
       age,
       animal_type,
       size,
+      gender,
       minPrice,
       maxPrice,
       includeHidden = false,
@@ -131,6 +136,15 @@ export const PetsRepo = {
         typeMatches.push('other');
       }
       
+      // Gender keyword mapping
+      const genderMatches: PetGender[] = [];
+      if (q.includes('male') || q.includes('boy')) {
+        genderMatches.push('male');
+      }
+      if (q.includes('female') || q.includes('girl')) {
+        genderMatches.push('female');
+      }
+      
       const searchConditions: any[] = [
         { name: { contains: query, mode: 'insensitive' } },
         { breed: { contains: query, mode: 'insensitive' } },
@@ -145,6 +159,9 @@ export const PetsRepo = {
       }
       if (typeMatches.length > 0) {
         searchConditions.push({ animal_type: { in: typeMatches } });
+      }
+      if (genderMatches.length > 0) {
+        searchConditions.push({ gender: { in: genderMatches } });
       }
       
       where.AND.push({ OR: searchConditions });
@@ -162,6 +179,9 @@ export const PetsRepo = {
     }
     if (size) {
       where.AND.push({ size });
+    }
+    if (gender) {
+      where.AND.push({ gender });
     }
     
     // Price range filter
@@ -227,6 +247,7 @@ export const PetsRepo = {
         animal_type: data.animal_type || 'dog',
         breed: data.breed,
         size: data.size,
+        gender: data.gender || 'male',
         rehoming_fee: data.rehoming_fee ?? 50,
         status: data.status || 'available',
         custom_availability_date: data.custom_availability_date,

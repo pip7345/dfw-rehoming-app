@@ -62,5 +62,19 @@ export const ListersRepo = {
       where: { id },
       data
     });
+  },
+
+  updateProfile(id: string, data: { display_name?: string; about?: string; contact_preferences?: ContactPreferences }) {
+    const updateData: any = {};
+    if (typeof data.display_name !== 'undefined') updateData.display_name = data.display_name;
+    if (typeof data.about !== 'undefined') updateData.about = data.about;
+    if (typeof data.contact_preferences !== 'undefined') {
+      updateData.contact_preferences = data.contact_preferences as Prisma.InputJsonValue;
+    }
+    return prisma.listers.update({
+      where: { id },
+      data: updateData,
+      include: { user: true, location: true }
+    });
   }
 };

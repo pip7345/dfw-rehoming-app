@@ -13,53 +13,63 @@
   <%- include('partials/nav-bar', { user }) %>
 
   <div class="dashboard-grid">
-    <aside class="sidebar">
-      <h2>Contact Settings</h2>
-      <form class="contact-form" id="contact-form">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" value="<%= contactPrefs && contactPrefs.email ? contactPrefs.email : user.email %>" />
-        </div>
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input type="checkbox" name="show_email" <%= contactPrefs && contactPrefs.show_email ? 'checked' : '' %> />
-            Show email publicly
-          </label>
-        </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="tel" name="phone" value="<%= contactPrefs && contactPrefs.phone ? contactPrefs.phone : '' %>" placeholder="(555) 123-4567" />
-        </div>
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input type="checkbox" name="show_phone" <%= contactPrefs && contactPrefs.show_phone ? 'checked' : '' %> />
-            Show phone publicly
-          </label>
-        </div>
-        
-        <div class="contact-section">
-          <h3>Facebook Messenger</h3>
+    <aside class="sidebar" id="profile-sidebar">
+      <button type="button" id="profile-toggle" class="btn btn-secondary" style="width:100%; margin-bottom: 0.75rem; display:flex; align-items:center; justify-content:space-between;">
+        <span>Profile & Contact Settings</span>
+        <span id="profile-toggle-icon">▾</span>
+      </button>
+      <div id="profile-content">
+        <form class="contact-form" id="profile-form">
           <div class="form-group">
-            <label>Messenger Username</label>
-            <input type="text" name="messenger_username" value="<%= contactPrefs && contactPrefs.messenger_username ? contactPrefs.messenger_username : '' %>" placeholder="your.username" />
-            <span class="messenger-help">
-              Your Facebook username (found in your profile URL: facebook.com/<strong>your.username</strong>)
-              <br>
-              <a href="https://www.facebook.com/me" target="_blank" class="text-accent hover:underline text-sm">
-                → Click here to open your Facebook profile and find your username
-              </a>
-            </span>
+            <label>Display Name</label>
+            <input type="text" name="display_name" value="<%= lister && lister.display_name ? lister.display_name : user.display_name %>" placeholder="Your name as shown to adopters" />
+          </div>
+          <div class="form-group">
+            <label>About You</label>
+            <textarea name="about" rows="4" placeholder="Tell potential adopters about yourself..."><%= lister && lister.about ? lister.about : '' %></textarea>
+          </div>
+          <hr style="margin:1rem 0; border-color: var(--border);" />
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value="<%= contactPrefs && contactPrefs.email ? contactPrefs.email : user.email %>" />
+          </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="show_email" <%= contactPrefs && contactPrefs.show_email ? 'checked' : '' %> />
+                Show email publicly
+              </label>
+            </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" name="phone" value="<%= contactPrefs && contactPrefs.phone ? contactPrefs.phone : '' %>" placeholder="(555) 123-4567" />
           </div>
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" name="show_messenger" <%= contactPrefs && contactPrefs.show_messenger ? 'checked' : '' %> />
-              Show Messenger link publicly
+              <input type="checkbox" name="show_phone" <%= contactPrefs && contactPrefs.show_phone ? 'checked' : '' %> />
+              Show phone publicly
             </label>
           </div>
-        </div>
-        
-        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Contact Info</button>
-      </form>
+          <div class="contact-section">
+            <h3 style="margin-top:0.75rem;">Facebook Messenger</h3>
+            <div class="form-group">
+              <label>Messenger Username</label>
+              <input type="text" name="messenger_username" value="<%= contactPrefs && contactPrefs.messenger_username ? contactPrefs.messenger_username : '' %>" placeholder="your.username" />
+              <span class="messenger-help">
+                Your Facebook username (found in your profile URL: facebook.com/<strong>your.username</strong>)
+                <br>
+                <a href="https://www.facebook.com/me" target="_blank" class="text-accent hover:underline text-sm">→ Open your Facebook profile</a>
+              </span>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="show_messenger" <%= contactPrefs && contactPrefs.show_messenger ? 'checked' : '' %> />
+                Show Messenger link publicly
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 1rem; width:100%;">Save Profile</button>
+        </form>
+      </div>
     </aside>
 
     <main class="main-content">
@@ -331,11 +341,13 @@
       }, 4000);
     }
 
-    // Contact form with messenger support
-    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    // Combined profile & contact form submission
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.target;
       const data = {
+        display_name: form.display_name.value,
+        about: form.about.value,
         email: form.email.value,
         phone: form.phone.value,
         show_email: form.show_email.checked,
@@ -344,21 +356,37 @@
         show_messenger: form.show_messenger.checked
       };
       try {
-        const res = await fetch(`${API_URL}/listers/me/contact`, {
+        const res = await fetch(`${API_URL}/listers/me/profile`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(data)
         });
         if (res.ok) {
-          showToast('✓ Contact info saved!', 'success');
+          showToast('✓ Profile saved!', 'success');
         } else {
           const err = await res.json();
-          showToast('✗ ' + (err.error || 'Failed to save contact info'), 'error');
+          showToast('✗ ' + (err.error || 'Failed to save profile'), 'error');
         }
       } catch (err) {
         console.error(err);
-        showToast('✗ Error saving contact info', 'error');
+        showToast('✗ Error saving profile', 'error');
+      }
+    });
+
+    // Sidebar collapse/expand
+    const profileToggleBtn = document.getElementById('profile-toggle');
+    const profileContent = document.getElementById('profile-content');
+    const profileToggleIcon = document.getElementById('profile-toggle-icon');
+    let sidebarOpen = true;
+    profileToggleBtn.addEventListener('click', () => {
+      sidebarOpen = !sidebarOpen;
+      if (sidebarOpen) {
+        profileContent.style.display = 'block';
+        profileToggleIcon.textContent = '▾';
+      } else {
+        profileContent.style.display = 'none';
+        profileToggleIcon.textContent = '▸';
       }
     });
 

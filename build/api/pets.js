@@ -4,13 +4,14 @@ const router = Router();
 // Search pets (public)
 router.get('/search', async (req, res) => {
     try {
-        const { q: query, breed, age, animal_type, size, min_price, max_price, sort, limit, offset } = req.query;
+        const { q: query, breed, age, animal_type, size, gender, min_price, max_price, sort, limit, offset } = req.query;
         const pets = await PetsRepo.search({
             query: query,
             breed: breed,
             age: age,
             animal_type: animal_type,
             size: size,
+            gender: gender,
             minPrice: min_price ? parseFloat(min_price) : undefined,
             maxPrice: max_price ? parseFloat(max_price) : undefined,
             sortBy: sort || 'newest',
@@ -43,7 +44,7 @@ router.post('/', async (req, res) => {
         return res.status(401).json({ ok: false, error: 'Not authenticated' });
     }
     try {
-        const { pack_id, name, age, animal_type, breed, size, rehoming_fee, status, custom_availability_date, expiry_date, description, cloudinary_public_ids } = req.body;
+        const { pack_id, name, age, animal_type, breed, size, gender, rehoming_fee, status, custom_availability_date, expiry_date, description, cloudinary_public_ids } = req.body;
         if (!expiry_date) {
             return res.status(400).json({ ok: false, error: 'expiry_date is required' });
         }
@@ -54,6 +55,7 @@ router.post('/', async (req, res) => {
             animal_type,
             breed,
             size,
+            gender,
             rehoming_fee: rehoming_fee !== undefined ? parseFloat(rehoming_fee) : undefined,
             status,
             custom_availability_date: custom_availability_date ? new Date(custom_availability_date) : undefined,
@@ -74,13 +76,14 @@ router.put('/:id', async (req, res) => {
         return res.status(401).json({ ok: false, error: 'Not authenticated' });
     }
     try {
-        const { name, age, animal_type, breed, size, rehoming_fee, status, custom_availability_date, expiry_date, description, cloudinary_public_ids } = req.body;
+        const { name, age, animal_type, breed, size, gender, rehoming_fee, status, custom_availability_date, expiry_date, description, cloudinary_public_ids } = req.body;
         const pet = await PetsRepo.update(req.params.id, {
             name,
             age,
             animal_type,
             breed,
             size,
+            gender,
             rehoming_fee: rehoming_fee !== undefined ? parseFloat(rehoming_fee) : undefined,
             status,
             custom_availability_date: custom_availability_date ? new Date(custom_availability_date) : null,

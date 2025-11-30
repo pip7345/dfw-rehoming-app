@@ -19,16 +19,17 @@ router.get('/register', (req, res) => {
 // Homepage with pet search
 router.get('/', async (req, res) => {
     try {
-        const { q: query, animal_type, age, size, min_price, max_price } = req.query;
+        const { q: query, animal_type, age, size, gender, min_price, max_price } = req.query;
         const pets = await PetsRepo.search({
             query: query,
             animal_type: animal_type,
             age: age,
             size: size,
+            gender: gender, // PetGender type supported in repo
             minPrice: min_price ? parseFloat(min_price) : undefined,
             maxPrice: max_price ? parseFloat(max_price) : undefined,
-            includeHidden: false, // Visitors should not see hidden pets
-            includeExpired: false, // Visitors should not see expired listings
+            includeHidden: false,
+            includeExpired: false,
             sortBy: 'newest',
             limit: 50
         });
@@ -40,6 +41,7 @@ router.get('/', async (req, res) => {
                 animal_type: animal_type || '',
                 age: age || '',
                 size: size || '',
+                gender: gender || '',
                 min_price: min_price || '',
                 max_price: max_price || ''
             },
@@ -144,7 +146,9 @@ router.get('/pack/:id', async (req, res) => {
         const contactPrefs = lister?.contact_preferences || {};
         console.log('Pack page - contactPrefs from DB:', JSON.stringify(contactPrefs, null, 2));
         const listerContact = {
-            name: lister?.user?.display_name || 'Lister',
+            name: lister?.display_name || lister?.user?.display_name || 'Lister',
+            display_name: lister?.display_name || lister?.user?.display_name || null,
+            about: lister?.about || null,
             show_email: contactPrefs.show_email !== false, // Default to true if not set
             show_phone: contactPrefs.show_phone === true,
             show_messenger: contactPrefs.show_messenger === true,

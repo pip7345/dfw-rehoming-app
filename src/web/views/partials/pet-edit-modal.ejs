@@ -70,6 +70,17 @@
             </div>
 
             <div class="form-group-modal">
+              <label for="edit-pet-gender">Gender</label>
+              <select name="gender" id="edit-pet-gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="unspecified">Unspecified</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-modal">
+            <div class="form-group-modal">
               <label for="edit-pet-status">Status</label>
               <select name="status" id="edit-pet-status">
                 <option value="available">Available</option>
@@ -78,17 +89,17 @@
                 <option value="hidden">Hidden</option>
               </select>
             </div>
+
+            <div class="form-group-modal">
+              <label for="edit-pet-rehoming-fee">Rehoming Fee ($)</label>
+              <input type="number" name="rehoming_fee" id="edit-pet-rehoming-fee" min="0" step="0.01" value="50" placeholder="50.00" />
+            </div>
           </div>
 
           <div class="form-row-modal">
             <div class="form-group-modal">
               <label for="edit-pet-expiry">Listing Expiry Date *</label>
               <input type="date" name="expiry_date" id="edit-pet-expiry" required />
-            </div>
-
-            <div class="form-group-modal">
-              <label for="edit-pet-rehoming-fee">Rehoming Fee ($)</label>
-              <input type="number" name="rehoming_fee" id="edit-pet-rehoming-fee" min="0" step="0.01" value="50" placeholder="50.00" />
             </div>
           </div>
 
@@ -135,6 +146,7 @@
       document.getElementById('edit-pet-breed').value = petData.breed || '';
       document.getElementById('edit-pet-age').value = petData.age || '';
       document.getElementById('edit-pet-size').value = petData.size || '';
+      document.getElementById('edit-pet-gender').value = petData.gender || 'male';
       document.getElementById('edit-pet-status').value = petData.status || 'available';
       document.getElementById('edit-pet-description').value = petData.description || '';
       document.getElementById('edit-pet-rehoming-fee').value = petData.rehoming_fee ?? 50;
@@ -164,6 +176,7 @@
         document.getElementById('edit-pet-breed').value = pet.breed || '';
         document.getElementById('edit-pet-age').value = pet.age || '';
         document.getElementById('edit-pet-size').value = pet.size || '';
+        document.getElementById('edit-pet-gender').value = pet.gender || 'male';
         document.getElementById('edit-pet-status').value = pet.status || 'available';
         document.getElementById('edit-pet-description').value = pet.description || '';
         document.getElementById('edit-pet-rehoming-fee').value = pet.rehoming_fee ?? 50;
@@ -207,6 +220,9 @@
       
       // Set default rehoming fee
       document.getElementById('edit-pet-rehoming-fee').value = 50;
+      
+      // Set default gender
+      document.getElementById('edit-pet-gender').value = 'male';
       
       updateEditPhotoPreview();
     }
@@ -323,6 +339,7 @@
       breed: document.getElementById('edit-pet-breed').value || null,
       age: document.getElementById('edit-pet-age').value || null,
       size: document.getElementById('edit-pet-size').value || null,
+      gender: document.getElementById('edit-pet-gender').value || 'male',
       status: document.getElementById('edit-pet-status').value || 'available',
       description: document.getElementById('edit-pet-description').value || null,
       expiry_date: document.getElementById('edit-pet-expiry').value,

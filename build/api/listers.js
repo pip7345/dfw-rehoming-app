@@ -17,6 +17,34 @@ router.get('/me', async (req, res) => {
         res.status(500).json({ ok: false, error: error.message });
     }
 });
+// Update profile settings (authenticated)
+router.put('/me/profile', async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ ok: false, error: 'Not authenticated' });
+    }
+    try {
+        const { display_name, about, email, phone, show_email, show_phone, messenger_username, show_messenger } = req.body;
+        const lister = await ListersRepo.getOrCreate(user.id);
+        // Update both lister base profile and contact preferences
+        const updated = await ListersRepo.updateProfile(lister.id, {
+            display_name,
+            about,
+            contact_preferences: {
+                email,
+                phone,
+                show_email,
+                show_phone,
+                messenger_username,
+                show_messenger
+            }
+        });
+        res.json({ ok: true, lister: updated });
+    }
+    catch (error) {
+        res.status(500).json({ ok: false, error: error.message });
+    }
+});
 // Update contact preferences (authenticated)
 router.put('/me/contact', async (req, res) => {
     const user = req.user;

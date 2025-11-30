@@ -34,12 +34,17 @@
 
       <!-- Collapsible filters row -->
       <div id="filter-container" class="hidden mt-3 pt-3 border-t border-border">
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <select name="animal_type" class="select !py-2 !px-3">
             <option value="">All Animals</option>
             <option value="dog" <%= typeof filters !== 'undefined' && filters.animal_type === 'dog' ? 'selected' : '' %>>Dogs</option>
             <option value="cat" <%= typeof filters !== 'undefined' && filters.animal_type === 'cat' ? 'selected' : '' %>>Cats</option>
             <option value="other" <%= typeof filters !== 'undefined' && filters.animal_type === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+          <select name="gender" class="select !py-2 !px-3">
+            <option value="">All Genders</option>
+            <option value="male" <%= typeof filters !== 'undefined' && filters.gender === 'male' ? 'selected' : '' %>>Male</option>
+            <option value="female" <%= typeof filters !== 'undefined' && filters.gender === 'female' ? 'selected' : '' %>>Female</option>
           </select>
           <select name="age" class="select !py-2 !px-3">
             <option value="">All Ages</option>

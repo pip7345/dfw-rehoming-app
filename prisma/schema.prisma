@@ -52,6 +52,12 @@ enum PetType {
   other
 }
 
+enum PetGender {
+  male
+  female
+  unspecified
+}
+
 model Users {
   id             String        @id @default(uuid())
   email          String?       @unique
@@ -85,6 +91,8 @@ model Location {
 model Listers {
   id                   String   @id @default(uuid())
   user_id              String   @unique
+  display_name         String?
+  about                String?  @db.Text
   contact_preferences  Json?
   location_id          String
   is_published         Boolean  @default(true)
@@ -118,6 +126,7 @@ model Pets {
   animal_type              PetType    @default(dog)
   breed                    String?
   size                     PetSize?
+  gender                   PetGender  @default(male)
   rehoming_fee             Decimal    @default(50) @db.Decimal(10, 2)
   status                   PetStatus  @default(available)
   custom_availability_date DateTime?  @db.Date

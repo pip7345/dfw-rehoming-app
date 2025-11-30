@@ -25,7 +25,7 @@
   <div class="pet-tile-photo">
       <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
         <img 
-          src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_400,h_300,g_auto/<%= pet.cloudinary_public_ids[0] %>.jpg"
+          src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_400,h_300/<%= pet.cloudinary_public_ids[0] %>.jpg"
           alt="<%= pet.name || 'Pet' %>"
           loading="lazy"
         />
@@ -77,6 +77,9 @@
         <% } %>
         <% if (pet.size) { %>
           <span class="pet-tile-tag"><%= pet.size %></span>
+        <% } %>
+        <% if (isUnpaid) { %>
+          <span class="pet-tile-tag" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 500;">⚠️ Payment Pending</span>
         <% } %>
         <% if (pet.status) { %>
           <span class="pet-tile-tag pet-tile-tag-status"><%= pet.status %></span>

@@ -27,7 +27,7 @@
         <% if (petPhotos.length > 0) { %>
           <% petPhotos.forEach((photoId, index) => { %>
             <div class="pet-edit-photo-item">
-              <img src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_200,h_150/<%= photoId %>.jpg" alt="Pet photo <%= index + 1 %>" />
+              <img src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_200,h_150/<%= photoId %>.jpg" alt="Pet photo <%= index + 1 %>" />
               <button type="button" class="pet-edit-photo-remove" onclick="removePhoto('<%= formId %>', <%= index %>)">×</button>
             </div>
           <% }); %>

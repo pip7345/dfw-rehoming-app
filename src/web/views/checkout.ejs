@@ -94,7 +94,7 @@
           const breed = dog.breed || '';
           const animalType = dog.animal_type || '';
           const photoUrl = dog.cloudinary_public_ids && dog.cloudinary_public_ids.length > 0
-            ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_80,h_60,g_auto/${dog.cloudinary_public_ids[0]}.jpg`
+            ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_pad,b_rgb:${cloudinaryPadRgb},w_80,h_60/${dog.cloudinary_public_ids[0]}.jpg`
             : null;
           
           const tags = [animalType, breed, age, size].filter(Boolean);

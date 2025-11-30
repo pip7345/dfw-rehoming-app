@@ -42,7 +42,13 @@
           <div class="form-group">
             <label>Messenger Username</label>
             <input type="text" name="messenger_username" value="<%= contactPrefs && contactPrefs.messenger_username ? contactPrefs.messenger_username : '' %>" placeholder="your.username" />
-            <span class="messenger-help">Your Facebook username (found in your profile URL: facebook.com/your.username)</span>
+            <span class="messenger-help">
+              Your Facebook username (found in your profile URL: facebook.com/<strong>your.username</strong>)
+              <br>
+              <a href="https://www.facebook.com/me" target="_blank" class="text-accent hover:underline text-sm">
+                → Click here to open your Facebook profile and find your username
+              </a>
+            </span>
           </div>
           <div class="form-group">
             <label class="checkbox-label">
@@ -81,9 +87,6 @@
                       <span class="pending-payment-badge">⏳ Pending Payment</span>
                     <% } %>
                   </h3>
-                  <% if (pack.description) { %>
-                    <p class="pack-description"><%= pack.description %></p>
-                  <% } %>
                 </div>
                 <div class="pack-actions flex gap-3 flex-wrap">
                   <% if (hasUnpaidPets) { %>
@@ -93,10 +96,13 @@
                     <a href="/receipt/<%= uniqueReceiptIds[0] %>" class="btn btn-primary" title="View Receipt">🧾 Receipt</a>
                   <% } %>
                   <a href="/create-pack?id=<%= pack.id %>" class="btn btn-primary">Edit Pack</a>
-                  <a href="/pack/<%= pack.id %>" class="btn btn-primary" target="_blank">View</a>
+                  <a href="/pack/<%= pack.id %>" class="btn btn-primary">View</a>
                   <button class="btn btn-primary" onclick="deletePack('<%= pack.id %>', '<%= pack.name %>')">Delete</button>
                 </div>
               </div>
+              <% if (pack.description) { %>
+                <p class="pack-description" style="margin-top: 0.5rem;"><%= pack.description %></p>
+              <% } %>
             </div>
             
             <% if (pack.pets && pack.pets.length > 0) { %>
@@ -669,7 +675,7 @@
       } else {
         preview.innerHTML = currentPetPhotos.map((id, i) => `
           <div style="position: relative;">
-            <img src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_107,h_80/${id}" 
+                <img src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_pad,b_rgb:${cloudinaryPadRgb},w_107,h_80/${id}" 
                  style="border-radius: 6px; width: 80px; height: 80px; object-fit: cover;" />
             <button type="button" onclick="removePhoto(${i})" 
                     style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">×</button>
@@ -698,7 +704,17 @@
         maxFiles: 10,
         resourceType: 'image',
         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 5000000,
+        maxFileSize: 10000000, // 10MB max
+        cropping: true, // Optional cropping
+        showSkipCropButton: true, // Allow users to skip cropping
+        croppingShowDimensions: true,
+        croppingCoordinatesMode: 'custom',
+        folder: 'pets',
+        tags: ['pet', 'listing'],
+        // Transform image on upload to max height 600 while preserving aspect ratio
+        transformation: [
+          { height: 600, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }
+        ],
         styles: {
           palette: {
             window: '#1a1d26',

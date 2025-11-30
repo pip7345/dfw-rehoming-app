@@ -7,8 +7,10 @@ export interface ContactPreferences {
   preferred_method?: 'email' | 'phone' | 'facebook';
   show_email?: boolean;
   show_phone?: boolean;
+  show_messenger?: boolean;
   email?: string;
   phone?: string;
+  messenger_username?: string;
 }
 
 export const ListersRepo = {

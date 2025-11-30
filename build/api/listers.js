@@ -24,13 +24,15 @@ router.put('/me/contact', async (req, res) => {
         return res.status(401).json({ ok: false, error: 'Not authenticated' });
     }
     try {
-        const { phone, email, show_email, show_phone } = req.body;
+        const { phone, email, show_email, show_phone, messenger_username, show_messenger } = req.body;
         const lister = await ListersRepo.getOrCreate(user.id);
         const updated = await ListersRepo.updateContactPreferences(lister.id, {
             phone,
             email,
             show_email,
-            show_phone
+            show_phone,
+            messenger_username,
+            show_messenger
         });
         res.json({ ok: true, lister: updated });
     }

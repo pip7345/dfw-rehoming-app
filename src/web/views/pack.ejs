@@ -17,26 +17,14 @@
       <% if (pack.description) { %>
         <p class="text-text-secondary text-lg mt-2"><%= pack.description %></p>
       <% } %>
-      <div class="bg-bg-tertiary p-4 rounded-lg mt-4">
-        <h3 class="font-semibold text-text-primary mb-3">Contact Lister</h3>
-        <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_email && (contactPrefs.email || lister.email)) { %>
-          <div class="flex items-center gap-2 text-text-secondary mb-1">📧 <a class="text-accent hover:underline" href="mailto:<%= contactPrefs.email || lister.email %>"><%= contactPrefs.email || lister.email %></a></div>
-        <% } %>
-        <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_phone && contactPrefs.phone) { %>
-          <div class="flex items-center gap-2 text-text-secondary mb-1">📞 <a class="text-accent hover:underline" href="tel:<%= contactPrefs.phone %>"><%= contactPrefs.phone %></a></div>
-        <% } %>
-        <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_messenger && contactPrefs.messenger_username) { %>
-          <div class="flex items-center gap-2 text-text-secondary mb-1">💬 <a class="text-accent hover:underline" href="https://m.me/<%= contactPrefs.messenger_username %>" target="_blank">Message on Facebook</a></div>
-        <% } %>
-      </div>
     </div>
 
     <% if (pack.pets && pack.pets.length > 0) { %>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         <% pack.pets.forEach(pet => { %>
           <div class="bg-bg-secondary border border-border rounded-xl overflow-hidden">
             <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
-              <img src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_800,h_600,g_auto/<%= pet.cloudinary_public_ids[0] %>.jpg" alt="<%= pet.name || 'Pet' %>" class="w-full aspect-[4/3] object-cover bg-bg-tertiary" />
+              <img src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_800,h_600/<%= pet.cloudinary_public_ids[0] %>.jpg" alt="<%= pet.name || 'Pet' %>" class="w-full aspect-[4/3] object-cover bg-bg-tertiary" />
             <% } else { %>
               <div class="w-full aspect-[4/3] bg-bg-tertiary"></div>
             <% } %>
@@ -63,6 +51,32 @@
     <% } else { %>
       <p class="text-text-secondary">No pets listed in this pack yet.</p>
     <% } %>
+
+    <!-- Contact Lister Section -->
+    <div class="card">
+      <h3 class="text-xl font-semibold text-text-primary mb-4">Contact Lister</h3>
+      
+      <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_messenger && contactPrefs.messenger_username) { %>
+        <a 
+          href="https://m.me/<%= contactPrefs.messenger_username %>" 
+          target="_blank"
+          class="btn btn-primary mb-3"
+        >
+          💬 Message on Facebook Messenger
+        </a>
+      <% } %>
+      
+      <div class="flex flex-col gap-2">
+        <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_email && (contactPrefs.email || lister.email)) { %>
+          <div class="flex items-center gap-2 text-text-secondary">📧 <a class="text-accent hover:underline" href="mailto:<%= contactPrefs.email || lister.email %>"><%= contactPrefs.email || lister.email %></a></div>
+        <% } %>
+        <% if (typeof contactPrefs !== 'undefined' && contactPrefs && contactPrefs.show_phone && contactPrefs.phone) { %>
+          <div class="flex items-center gap-2 text-text-secondary">📞 <a class="text-accent hover:underline" href="tel:<%= contactPrefs.phone %>"><%= contactPrefs.phone %></a></div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
   <%- include('partials/pet-details-modal') %>
 
   <script>

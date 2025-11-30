@@ -30,7 +30,7 @@
         : pet.cloudinary_public_ids;
       
       const photoUrl = publicIds && publicIds.length > 0
-        ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_800,h_600/${publicIds[0]}.jpg`
+        ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_pad,b_rgb:${cloudinaryPadRgb},w_800,h_600/${publicIds[0]}.jpg`
         : '';
       
       // Get emoji based on animal type

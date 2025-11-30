@@ -226,7 +226,7 @@
     } else {
       preview.innerHTML = currentEditPetPhotos.map((id, i) => `
         <div class="photo-preview-item">
-          <img src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_800,h_600/${id}.jpg" />
+          <img src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_pad,b_rgb:d1d5db,w_800,h_600/${id}.jpg" />
           <button type="button" class="photo-remove-btn" onclick="removeEditPhoto(${i})">×</button>
         </div>
       `).join('');
@@ -253,27 +253,17 @@
       maxFiles: 10,
       resourceType: 'image',
       clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-      cropping: true,
-      croppingAspectRatio: 4/3, // 800x600 aspect ratio
-      croppingDefaultSelectionRatio: 1,
+      maxFileSize: 10000000, // 10MB max
+      cropping: true, // Optional cropping
+      showSkipCropButton: true, // Allow users to skip cropping
       croppingShowDimensions: true,
       croppingCoordinatesMode: 'custom',
-      showSkipCropButton: false, // Force cropping
-      // Client-side image transformation (resize before upload)
-      prepareUploadParams: (cb, params) => {
-        cb({ 
-          ...params,
-          transformation: {
-            width: 800,
-            height: 600,
-            crop: 'limit', // Resize to fit within 800x600
-            quality: 'auto:good', // Optimize quality
-            fetch_format: 'auto' // Auto-select best format
-          }
-        });
-      },
-      folder: 'pets', // Organize uploads in 'pets' folder
+      folder: 'pets',
       tags: ['pet', 'listing'],
+      // Transform image on upload to max height 600 while preserving aspect ratio
+      transformation: [
+        { height: 600, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }
+      ],
       styles: {
         palette: {
           window: '#1a1d26',

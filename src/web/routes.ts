@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { CLOUDINARY_PAD_RGB } from './constants.js';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { UsersRepo } from '../core/usersRepo.js';
@@ -50,7 +51,8 @@ router.get('/', async (req, res) => {
         min_price: min_price || '',
         max_price: max_price || ''
       },
-      cloudinaryCloud: CLOUDINARY_CLOUD
+      cloudinaryCloud: CLOUDINARY_CLOUD,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading homepage:', error);
@@ -59,7 +61,8 @@ router.get('/', async (req, res) => {
       pets: [],
       query: '',
       filters: {},
-      cloudinaryCloud: CLOUDINARY_CLOUD
+      cloudinaryCloud: CLOUDINARY_CLOUD,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   }
 });
@@ -84,11 +87,12 @@ router.get('/dashboard', async (req, res) => {
       contactPrefs,
       packs,
       cloudinaryCloud: CLOUDINARY_CLOUD,
-      cloudinaryPreset: CLOUDINARY_PRESET
+      cloudinaryPreset: CLOUDINARY_PRESET,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading dashboard:', error);
-    res.render('dashboard', { user, lister: null, contactPrefs: {}, packs: [], cloudinaryCloud: CLOUDINARY_CLOUD, cloudinaryPreset: CLOUDINARY_PRESET });
+    res.render('dashboard', { user, lister: null, contactPrefs: {}, packs: [], cloudinaryCloud: CLOUDINARY_CLOUD, cloudinaryPreset: CLOUDINARY_PRESET, cloudinaryPadRgb: CLOUDINARY_PAD_RGB });
   }
 });
 
@@ -120,7 +124,8 @@ router.get('/create-pack', async (req, res) => {
       isSinglePet: false,
       pets,
       cloudinaryCloud: CLOUDINARY_CLOUD,
-      cloudinaryPreset: CLOUDINARY_PRESET
+      cloudinaryPreset: CLOUDINARY_PRESET,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading create-pack:', error);
@@ -155,22 +160,26 @@ router.get('/pack/:id', async (req, res) => {
     
     // Extract contact info from JSON field
     const contactPrefs = (lister?.contact_preferences as Record<string, any>) || {};
+    console.log('Pack page - contactPrefs from DB:', JSON.stringify(contactPrefs, null, 2));
     const listerContact = {
       name: lister?.user?.display_name || 'Lister',
-      show_email: true, // Always show email for visitors to contact
-      show_phone: contactPrefs.phone ? true : false,
-      show_messenger: contactPrefs.messenger_username ? true : false,
-      email: lister?.user?.email || null,
+      show_email: contactPrefs.show_email !== false, // Default to true if not set
+      show_phone: contactPrefs.show_phone === true,
+      show_messenger: contactPrefs.show_messenger === true,
+      email: contactPrefs.email || lister?.user?.email || null,
       phone: contactPrefs.phone || null,
       messenger_username: contactPrefs.messenger_username || null,
       location: lister?.location
     };
+    console.log('Pack page - listerContact being sent to view:', JSON.stringify(listerContact, null, 2));
     
     res.render('pack', {
       user: (req as any).user || null,
       pack,
       lister: listerContact,
-      cloudinaryCloud: CLOUDINARY_CLOUD
+      contactPrefs: listerContact, // Also pass as contactPrefs for compatibility
+      cloudinaryCloud: CLOUDINARY_CLOUD,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading pack:', error);
@@ -217,7 +226,8 @@ router.get('/checkout', async (req, res) => {
       packName: packName,
       unpaidPetsJson: JSON.stringify(unpaidPets),
       cloudinaryCloud: CLOUDINARY_CLOUD,
-      cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset'
+      cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset',
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading checkout:', error);
@@ -262,7 +272,8 @@ router.get('/receipt/:id', async (req, res) => {
       petCount,
       perPet,
       packsMap,
-      cloudinaryCloud: CLOUDINARY_CLOUD
+      cloudinaryCloud: CLOUDINARY_CLOUD,
+      cloudinaryPadRgb: CLOUDINARY_PAD_RGB
     });
   } catch (error) {
     console.error('Error loading receipt:', error);

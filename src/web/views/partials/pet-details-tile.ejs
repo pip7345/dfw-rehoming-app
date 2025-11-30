@@ -25,7 +25,7 @@
   <div class="relative w-full h-[441px] bg-bg-tertiary overflow-hidden">
     <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
       <img 
-        src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_588,h_441,g_auto/<%= pet.cloudinary_public_ids[0] %>.jpg"
+        src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_588,h_441/<%= pet.cloudinary_public_ids[0] %>.jpg"
         alt="<%= pet.name || 'Pet' %>"
         loading="lazy"
         class="w-full h-full object-cover"

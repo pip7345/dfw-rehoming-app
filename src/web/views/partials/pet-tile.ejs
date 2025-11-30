@@ -1,0 +1,86 @@
+<%
+  // Pet Thumbnail Tile - Reusable component
+  // Props: pet, cloudinaryCloud, isLister (boolean), showEdit (boolean, default true)
+  const showEditBtn = typeof showEdit !== 'undefined' ? showEdit : true;
+  const isHidden = pet.status === 'hidden';
+  const isSold = pet.status === 'adopted' || pet.status === 'sold';
+  const isReserved = pet.status === 'pending' || pet.status === 'reserved';
+  const isUnpaid = isLister && !pet.Receipt_id;
+  
+  // Get emoji based on animal type
+  const getTypeEmoji = (type) => {
+    const emojis = { dog: '🐕', cat: '🐱', other: '🐾' };
+    return emojis[type] || '🐾';
+  };
+  const typeEmoji = getTypeEmoji(pet.animal_type);
+  
+  // If visitor, navigate to pack page; if lister, open modal
+  const tileClickAction = isLister 
+    ? `openPetDetailsModal('${pet.id}')`
+    : `window.location.href='/pack/${pet.pack_id}'`;
+%>
+
+<div class="pet-tile" onclick="<%= tileClickAction %>">
+  <!-- Photo Container (fixed aspect ratio) -->
+  <div class="pet-tile-photo">
+      <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
+        <img 
+          src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_400,h_300,g_auto/<%= pet.cloudinary_public_ids[0] %>.jpg"
+          alt="<%= pet.name || 'Pet' %>"
+          loading="lazy"
+        />
+      <% } else { %>
+        <div class="pet-tile-placeholder"><%= typeEmoji %></div>
+      <% } %>
+      
+      <!-- Status Overlays -->
+      <% if (isSold) { %>
+        <div class="pet-tile-overlay pet-tile-overlay-sold">
+          <span class="pet-tile-status-text">SOLD</span>
+        </div>
+      <% } else if (isReserved) { %>
+        <div class="pet-tile-overlay pet-tile-overlay-reserved">
+          <span class="pet-tile-status-text">RESERVED</span>
+        </div>
+      <% } %>
+      
+      <% if (isHidden && isLister) { %>
+        <div class="pet-tile-badge pet-tile-badge-hidden">👁️ Hidden</div>
+      <% } %>
+    </div>
+    
+    <!-- Info Container (fixed height) -->
+    <div class="pet-tile-info">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <h3 class="pet-tile-name flex-1 m-0"><%= pet.name || 'Unnamed Pet' %></h3>
+        <span class="text-lg font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
+        <% if (isLister && showEditBtn) { %>
+          <button 
+            class="px-2 py-1 bg-accent text-white border-none rounded text-xs font-semibold cursor-pointer transition-colors hover:bg-accent-hover flex-shrink-0"
+            onclick="event.stopPropagation(); openPetEditModal('<%= pet.id %>', '<%= pet.pack_id %>');"
+          >
+            ✏️ Edit
+          </button>
+        <% } %>
+      </div>
+      <div class="pet-tile-meta">
+        <% if (pet.breed) { %>
+          <span class="pet-tile-tag"><%= pet.breed %></span>
+        <% } else { %>
+          <span class="pet-tile-tag">Mixed Breed</span>
+        <% } %>
+        <% if (pet.animal_type) { %>
+          <span class="pet-tile-tag"><%= pet.animal_type %></span>
+        <% } %>
+        <% if (pet.age) { %>
+          <span class="pet-tile-tag"><%= pet.age.replace(/_/g, ' ') %></span>
+        <% } %>
+        <% if (pet.size) { %>
+          <span class="pet-tile-tag"><%= pet.size %></span>
+        <% } %>
+        <% if (pet.status) { %>
+          <span class="pet-tile-tag pet-tile-tag-status"><%= pet.status %></span>
+        <% } %>
+      </div>
+    </div>
+</div>

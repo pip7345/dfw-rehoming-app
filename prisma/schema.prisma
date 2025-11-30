@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  lister
+  admin
+}
+
+enum AccountStatus {
+  active
+  suspended
+  deleted
+}
+
+enum PetStatus {
+  available
+  reserved
+  sold
+  custom_date
+  hidden
+}
+
+enum PetAge {
+  less_than_8_months
+  eight_to_12_months
+  one_to_3_years
+  four_to_7_years
+  eight_plus_years
+}
+
+enum PetSize {
+  small
+  medium
+  large
+  extra_large
+}
+
+enum PetType {
+  dog
+  cat
+  other
+}
+
+model Users {
+  id             String        @id @default(uuid())
+  email          String?       @unique
+  password_hash  String?
+  facebook_id    String?       @unique
+  display_name   String
+  profile_photo_url String?
+  role           UserRole      @default(lister)
+  account_status AccountStatus @default(active)
+  email_verified Boolean       @default(false)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  last_login_at  DateTime?
+  
+  lister         Listers?
+  receipts       Receipt[]
+}
+
+model Location {
+  id                 String    @id @default(uuid())
+  landing_page_url   String    @unique
+  city               String
+  state              String
+  timezone           String
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  
+  listers            Listers[]
+}
+
+model Listers {
+  id                   String   @id @default(uuid())
+  user_id              String   @unique
+  contact_preferences  Json?
+  location_id          String
+  is_published         Boolean  @default(true)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+  
+  user                 Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  location             Location @relation(fields: [location_id], references: [id])
+  packs                Packs[]
+}
+
+model Packs {
+  id          String   @id @default(uuid())
+  lister_id   String
+  name        String
+  description String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  lister      Listers       @relation(fields: [lister_id], references: [id], onDelete: Cascade)
+  pets        Pets[]
+  views       ListingViews[]
+}
+
+model Pets {
+  id                       String     @id @default(uuid())
+  pack_id                  String?
+  Receipt_id               String?
+  name                     String?
+  age                      PetAge?
+  animal_type              PetType    @default(dog)
+  breed                    String?
+  size                     PetSize?
+  rehoming_fee             Decimal    @default(50) @db.Decimal(10, 2)
+  status                   PetStatus  @default(available)
+  custom_availability_date DateTime?  @db.Date
+  expiry_date              DateTime   @db.Date
+  description              String?    @db.Text
+  cloudinary_public_ids    Json?
+  created_at               DateTime   @default(now())
+  updated_at               DateTime   @updatedAt
+  
+  pack                     Packs?          @relation(fields: [pack_id], references: [id], onDelete: SetNull)
+  receipt                  Receipt?        @relation(fields: [Receipt_id], references: [id])
+  views                    ListingViews[]
+}
+
+model Receipt {
+  id              String   @id @default(uuid())
+  user_id         String
+  paypal_order_id String
+  amount          Decimal
+  currency        String
+  status          String
+  paid_at         DateTime
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user Users @relation(fields: [user_id], references: [id])
+  pets Pets[]
+}
+
+model ListingViews {
+  id         String   @id @default(uuid())
+  pet_id     String?
+  pack_id    String?
+  viewer_ip  String
+  viewed_at  DateTime @default(now())
+  
+  pet        Pets?    @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+  pack       Packs?   @relation(fields: [pack_id], references: [id], onDelete: Cascade)
+  
+  @@index([pet_id])
+  @@index([pack_id])
+  @@index([viewed_at])
+}

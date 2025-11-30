@@ -1,0 +1,99 @@
+<%
+  // Pet Details Tile - Expanded view with all information
+  // Props: pet, cloudinaryCloud, isLister (boolean), showEditButton (boolean, default false)
+  const showEdit = typeof showEditButton !== 'undefined' ? showEditButton : false;
+  const isSold = pet.status === 'adopted' || pet.status === 'sold';
+  const isReserved = pet.status === 'pending' || pet.status === 'reserved';
+  
+  // Get emoji based on animal type
+  const getTypeEmoji = (type) => {
+    const emojis = { dog: '🐕', cat: '🐱', other: '🐾' };
+    return emojis[type] || '🐾';
+  };
+  const typeEmoji = getTypeEmoji(pet.animal_type);
+  
+  // Format dates
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not set';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+%>
+
+<div class="min-w-[280px] max-w-[588px] bg-bg-secondary border border-border rounded-xl overflow-hidden flex flex-col">
+  <!-- Photo Container (same as pet-tile) -->
+  <div class="relative w-full h-[441px] bg-bg-tertiary overflow-hidden">
+    <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
+      <img 
+        src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_588,h_441,g_auto/<%= pet.cloudinary_public_ids[0] %>.jpg"
+        alt="<%= pet.name || 'Pet' %>"
+        loading="lazy"
+        class="w-full h-full object-cover"
+      />
+    <% } else { %>
+      <div class="w-full h-full flex items-center justify-center text-[5rem] text-text-muted"><%= typeEmoji %></div>
+    <% } %>
+    
+    <!-- Status Overlays -->
+    <% if (isSold) { %>
+      <div class="absolute inset-0 flex items-center justify-center bg-black/70">
+        <span class="text-[6rem]">❌</span>
+      </div>
+    <% } else if (isReserved) { %>
+      <div class="absolute top-3 right-3 py-2 px-3.5 rounded-md text-sm font-semibold bg-warning/95 text-gray-800">⚠️ Reserved</div>
+    <% } %>
+  </div>
+  
+  <!-- Details Container (expandable) -->
+  <div class="p-5 flex flex-col gap-3 max-h-[400px] overflow-y-auto">
+    <div class="flex justify-between items-center gap-2">
+      <h3 class="text-xl font-semibold text-text-primary m-0"><%= pet.name || 'Unnamed Pet' %></h3>
+      <% if (isLister && showEdit) { %>
+        <button 
+          class="py-1.5 px-3 bg-accent text-white border-0 rounded-md text-sm cursor-pointer whitespace-nowrap hover:bg-accent-hover"
+          onclick="editPet('<%= pet.id %>');"
+        >
+          ✏️ Edit
+        </button>
+      <% } %>
+    </div>
+    
+    <p class="m-0 text-text-secondary text-[0.9375rem]"><%= pet.breed || 'Mixed Breed' %></p>
+    
+    <div class="flex gap-2 flex-wrap">
+      <% if (pet.animal_type) { %>
+        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
+      <% } %>
+      <% if (pet.age) { %>
+        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
+      <% } %>
+      <% if (pet.size) { %>
+        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
+      <% } %>
+      <% if (pet.status) { %>
+        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
+      <% } %>
+    </div>
+    
+    <% if (pet.custom_availability_date) { %>
+      <div class="flex flex-col gap-1">
+        <span class="text-xs text-text-muted uppercase tracking-wide font-semibold">Available</span>
+        <span class="text-sm text-text-primary capitalize"><%= formatDate(pet.custom_availability_date) %></span>
+      </div>
+    <% } %>
+    
+    <% if (pet.expiry_date) { %>
+      <div class="flex flex-col gap-1">
+        <span class="text-xs text-text-muted uppercase tracking-wide font-semibold">Expires</span>
+        <span class="text-sm text-text-primary capitalize"><%= formatDate(pet.expiry_date) %></span>
+      </div>
+    <% } %>
+    
+    <% if (pet.description) { %>
+      <div class="flex flex-col gap-2 pt-2 border-t border-border">
+        <span class="text-xs text-text-muted uppercase tracking-wide font-semibold">Description</span>
+        <p class="text-sm text-text-secondary leading-relaxed normal-case"><%= pet.description %></p>
+      </div>
+    <% } %>
+  </div>
+</div>

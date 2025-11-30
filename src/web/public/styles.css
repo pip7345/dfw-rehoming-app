@@ -1,0 +1,692 @@
+@import "tailwindcss";
+
+/* Custom theme configuration for Tailwind v4 */
+@theme {
+  /* Background colors */
+  --color-bg-primary: #0f1117;
+  --color-bg-secondary: #1a1d26;
+  --color-bg-tertiary: #252830;
+  --color-bg-hover: #2d3140;
+  
+  /* Text colors */
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  
+  /* Border colors */
+  --color-border: #374151;
+  --color-border-hover: #4b5563;
+  
+  /* Accent colors */
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  
+  /* Status colors */
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-warning: #f59e0b;
+}
+
+/* Base styles */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-bg-primary text-text-primary min-h-screen m-0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  
+  a {
+    @apply text-inherit no-underline;
+  }
+  
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+/* Reusable component styles */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium 
+           border border-transparent transition-all duration-200 whitespace-nowrap;
+  }
+  
+  .btn-primary {
+    @apply bg-accent text-white border-accent hover:bg-accent-hover hover:border-accent-hover
+           hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent text-text-primary border-border hover:bg-bg-tertiary hover:border-text-muted;
+  }
+  
+  .btn-danger {
+    @apply bg-transparent text-danger border-danger/30 hover:bg-danger/10 hover:border-danger;
+  }
+  
+  /* Cards */
+  .card {
+    @apply bg-transparent rounded-none border-0 p-0
+           sm:bg-bg-secondary sm:rounded-xl sm:border sm:border-border sm:p-6;
+  }
+  
+  /* Form inputs */
+  .input {
+    @apply w-full px-4 py-3 bg-bg-tertiary border border-border rounded-lg text-text-primary
+           placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors;
+  }
+  
+  .select {
+    @apply px-4 py-3 bg-bg-tertiary border border-border rounded-lg text-text-primary
+           focus:outline-none focus:border-accent transition-colors cursor-pointer;
+  }
+  
+  /* Navigation */
+  .nav-bar {
+    @apply flex justify-between items-center p-4 bg-bg-secondary border-b border-border;
+  }
+  
+  .nav-logo {
+    @apply font-bold text-xl text-accent;
+  }
+  
+  .nav-link {
+    @apply text-text-secondary hover:text-accent transition-colors;
+  }
+  
+  /* Status badges */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium;
+  }
+  
+  .badge-warning {
+    @apply bg-warning/15 text-warning border border-warning/30;
+  }
+  
+  .badge-success {
+    @apply bg-success/20 text-success;
+  }
+  
+  .badge-danger {
+    @apply bg-danger/20 text-danger;
+  }
+  
+  /* Modals */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal-content {
+    @apply bg-bg-secondary rounded-xl border border-border max-h-[95vh] overflow-y-auto flex flex-col;
+  }
+  
+  /* Toast notifications */
+  .toast {
+    @apply px-6 py-4 rounded-lg text-white font-medium flex items-center gap-2 min-w-72
+           animate-[slideIn_0.3s_ease];
+  }
+  
+  .toast-success {
+    @apply bg-success;
+  }
+  
+  .toast-error {
+    @apply bg-danger;
+  }
+  
+  .toast-info {
+    @apply bg-accent;
+  }
+  
+  /* Empty states */
+  .empty-state {
+    @apply text-center py-12 px-8 text-text-muted bg-bg-tertiary rounded-lg border border-dashed border-border;
+  }
+}
+
+/* Custom animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Pet Tile Component */
+@layer components {
+  .pet-tile {
+    @apply relative min-w-[280px] max-w-[400] bg-bg-secondary border border-border rounded-xl
+           overflow-hidden cursor-pointer transition-all duration-200;
+  }
+  
+  .pet-tile:hover {
+    @apply -translate-y-1 border-accent shadow-lg shadow-black/30;
+  }
+  
+  .pet-tile-photo {
+    @apply relative w-full aspect-[4/3] bg-bg-tertiary overflow-hidden;
+  }
+  
+  .pet-tile-photo img {
+    @apply w-full h-full object-cover;
+  }
+  
+  .pet-tile-placeholder {
+    @apply w-full h-full flex items-center justify-center text-7xl text-text-muted;
+  }
+  
+  .pet-tile-overlay {
+    @apply absolute inset-0 flex items-center justify-center;
+  }
+  
+  .pet-tile-status-text {
+    @apply text-2xl font-bold text-white uppercase tracking-wider py-2 px-4 rounded-lg;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  }
+  
+  .pet-tile-overlay-sold .pet-tile-status-text {
+    @apply bg-danger/90;
+  }
+  
+  .pet-tile-overlay-reserved .pet-tile-status-text {
+    @apply bg-warning/90;
+  }
+  
+  .pet-tile-badge {
+    @apply absolute top-3 right-3 px-3 py-1.5 rounded-md text-sm font-semibold backdrop-blur-sm;
+  }
+  
+  .pet-tile-badge-hidden {
+    @apply bg-text-muted/90 text-white;
+  }
+  
+  .pet-tile-badge-unpaid {
+    @apply bg-warning/90 text-gray-900 top-11;
+  }
+  
+  .pet-tile-info {
+    @apply p-4 h-[120px] flex flex-col gap-2;
+  }
+  
+  .pet-tile-name {
+    @apply text-lg font-semibold text-text-primary m-0 truncate;
+  }
+  
+  .pet-tile-breed {
+    @apply text-sm text-text-secondary m-0 truncate;
+  }
+  
+  .pet-tile-meta {
+    @apply flex gap-2 flex-wrap mt-auto;
+  }
+  
+  .pet-tile-tag {
+    @apply inline-block px-2.5 py-1 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize;
+  }
+  
+  .pet-tile-tag-status {
+    @apply bg-accent/20 text-blue-400 font-medium;
+  }
+  
+  .pet-tile-edit-btn {
+    @apply absolute top-3 left-3 px-3.5 py-2 bg-accent text-white border-none rounded-md 
+           text-sm font-semibold cursor-pointer transition-colors z-10 hover:bg-accent-hover;
+  }
+}
+
+/* Dashboard specific components */
+@layer components {
+  .dashboard-grid {
+    @apply grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 max-w-7xl mx-auto p-4 lg:p-8;
+  }
+  
+  .sidebar {
+    @apply bg-bg-secondary rounded-xl border border-border p-6 h-fit;
+  }
+  
+  .sidebar h2 {
+    @apply text-lg font-semibold mb-5 pb-3 border-b border-border text-text-primary;
+  }
+  
+  .pack-card {
+    @apply bg-bg-secondary rounded-xl border border-border p-6 mb-6 transition-colors hover:border-text-muted;
+  }
+  
+  .pack-header {
+    @apply mb-5;
+  }
+  
+  .pack-name {
+    @apply text-xl font-semibold text-text-primary flex items-center gap-3 flex-wrap;
+  }
+  
+  .pack-description {
+    @apply text-sm text-text-secondary leading-relaxed mt-3;
+  }
+  
+  .pack-actions {
+    @apply flex gap-3 flex-wrap items-center;
+  }
+  
+  @media (max-width: 640px) {
+    .pack-actions {
+      @apply flex-col;
+    }
+    .pack-actions .btn {
+      @apply w-full;
+    }
+  }
+  
+  .tile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mt-6;
+  }
+  
+  .section-header {
+    @apply flex justify-between items-center flex-wrap gap-4 mb-6 pb-4 border-b border-border;
+  }
+  
+  .section-title {
+    @apply text-2xl font-semibold text-text-primary;
+  }
+}
+
+/* Form components */
+@layer components {
+  .form-group {
+    @apply flex flex-col gap-1;
+  }
+  
+  .form-group label {
+    @apply text-sm text-text-secondary;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="tel"],
+  .form-group input[type="url"],
+  .form-group input[type="date"],
+  .form-group input[type="password"],
+  .form-group textarea,
+  .form-group select {
+    @apply px-3 py-2 border border-border rounded-md bg-bg-tertiary text-text-primary
+           focus:outline-none focus:border-accent transition-colors;
+  }
+  
+  .checkbox-label {
+    @apply flex items-center text-sm text-text-secondary cursor-pointer;
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    @apply w-auto mr-2;
+  }
+}
+
+/* Modal components */
+@layer components {
+  .modal {
+    @apply hidden fixed inset-0 bg-black/70 z-50 items-center justify-center p-4;
+  }
+  
+  .modal.active {
+    @apply flex;
+  }
+  
+  .modal-header {
+    @apply flex justify-between items-center mb-4 px-4 py-2;
+  }
+  
+  .modal-title {
+    @apply text-lg font-semibold text-text-primary;
+  }
+  
+  .modal-close {
+    @apply bg-transparent border-none text-2xl cursor-pointer text-text-muted hover:text-text-primary;
+  }
+  
+  .modal-footer {
+    @apply flex gap-4 p-4 border-t border-border mt-4 flex-wrap;
+  }
+  
+  .modal-footer .btn {
+    @apply flex-1 min-w-[120px];
+  }
+  
+  @media (max-width: 768px) {
+    .modal-footer {
+      @apply flex-col;
+    }
+    .modal-footer .btn {
+      @apply w-full;
+    }
+  }
+}
+
+/* Toast container */
+@layer components {
+  .toast-container {
+    @apply fixed top-4 right-4 z-[2000] flex flex-col gap-2;
+  }
+  
+  @media (max-width: 768px) {
+    .toast {
+      @apply min-w-0 max-w-[calc(100vw-2rem)];
+    }
+  }
+}
+
+/* Status badges */
+@layer components {
+  .pending-payment-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium
+           bg-warning/15 text-warning border border-warning/30;
+  }
+  
+  .status-available {
+    @apply bg-success/20 text-emerald-400;
+  }
+  
+  .status-pending {
+    @apply bg-warning/20 text-amber-400;
+  }
+  
+  .status-adopted {
+    @apply bg-accent/20 text-blue-400;
+  }
+  
+  .status-withdrawn {
+    @apply bg-text-muted/20 text-text-secondary;
+  }
+}
+
+/* Auth forms (login, register) */
+@layer components {
+  .auth-page {
+    @apply min-h-screen flex items-center justify-center p-4 bg-bg-primary;
+  }
+  
+  .auth-container {
+    @apply bg-bg-secondary border border-border rounded-xl p-8 w-full max-w-md;
+  }
+  
+  .auth-back-link {
+    @apply text-center mb-4;
+  }
+  
+  .auth-back-link a {
+    @apply text-accent hover:underline text-sm;
+  }
+  
+  .auth-logo {
+    @apply text-center text-5xl mb-4;
+  }
+  
+  .auth-title {
+    @apply text-2xl font-bold text-center text-text-primary mb-6;
+  }
+  
+  .auth-error {
+    @apply bg-danger/20 text-red-300 px-4 py-3 rounded-lg mb-4 text-sm;
+  }
+  
+  .auth-form {
+    @apply flex flex-col gap-4;
+  }
+  
+  .auth-footer {
+    @apply text-center text-text-muted text-sm mt-4;
+  }
+  
+  .auth-footer a {
+    @apply text-accent hover:underline;
+  }
+  
+  .btn-success {
+    @apply bg-success text-white border-success hover:bg-success-hover hover:border-success-hover
+           hover:-translate-y-0.5 hover:shadow-lg hover:shadow-success/30;
+  }
+}
+
+/* Dashboard page extended components */
+@layer components {
+  .nav-links {
+    @apply flex gap-4 items-center flex-wrap;
+  }
+  
+  @media (max-width: 768px) {
+    .nav-bar {
+      @apply flex-wrap gap-2;
+    }
+    .nav-links {
+      @apply w-full justify-center;
+    }
+  }
+  
+  .main-content {
+    @apply flex flex-col gap-6;
+  }
+  
+  .contact-form {
+    @apply flex flex-col gap-4;
+  }
+  
+  .contact-section {
+    @apply mt-6 pt-6 border-t border-border;
+  }
+  
+  .contact-section h3 {
+    @apply text-base font-semibold text-text-primary mb-4;
+  }
+  
+  .messenger-help {
+    @apply text-xs text-text-muted mt-1;
+  }
+  
+  /* Pack modal grid */
+  .pack-modal-grid {
+    @apply grid gap-6 flex-1 overflow-y-auto px-4;
+    grid-template-columns: 320px 1fr;
+  }
+  
+  @media (max-width: 768px) {
+    .pack-modal-grid {
+      @apply grid-cols-1;
+    }
+  }
+  
+  .pack-modal-section h3 {
+    @apply text-base font-semibold text-text-primary mb-4 pb-2 border-b border-border;
+  }
+  
+  .pack-details-tile {
+    @apply min-w-[280px] max-w-[320px] bg-bg-tertiary border border-border rounded-xl p-5 h-fit;
+  }
+  
+  .pack-details-tile h3 {
+    @apply text-sm font-semibold text-text-primary mb-4 uppercase tracking-wide;
+  }
+  
+  /* Modal sizes */
+  .modal-large {
+    @apply max-w-5xl;
+  }
+  
+  .modal-medium {
+    @apply max-w-lg;
+  }
+  
+  /* Pack dogs list in modal */
+  .pack-dogs-list {
+    @apply flex flex-col gap-3 max-h-96 overflow-y-auto;
+  }
+  
+  .pack-dog-item {
+    @apply flex items-center gap-3 p-3 bg-bg-tertiary rounded-lg;
+  }
+  
+  .pack-dog-item img {
+    @apply w-12 h-12 rounded-md object-cover;
+  }
+  
+  .pack-dog-info {
+    @apply flex-1;
+  }
+  
+  .pack-dog-name {
+    @apply font-semibold text-text-primary;
+  }
+  
+  .pack-dog-details {
+    @apply text-xs text-text-muted;
+  }
+  
+  /* Inline dog form */
+  .inline-dog-form {
+    @apply bg-bg-tertiary rounded-lg p-4 mt-4 hidden;
+  }
+  
+  .inline-dog-form.active {
+    @apply block;
+  }
+  
+  .inline-dog-form h4 {
+    @apply text-sm font-semibold text-text-primary mb-3;
+  }
+  
+  .inline-form-grid {
+    @apply grid grid-cols-2 gap-3;
+  }
+  
+  .inline-form-grid .full-width {
+    @apply col-span-2;
+  }
+  
+  /* Pet mini cards (for pack modal) */
+  .pet-mini-card {
+    @apply bg-bg-tertiary rounded-lg p-4 flex flex-col gap-2;
+  }
+  
+  .pet-mini-image {
+    @apply w-full h-[120px] object-cover rounded-md bg-bg-hover;
+  }
+  
+  .pet-mini-name {
+    @apply font-semibold text-text-primary;
+  }
+  
+  .pet-mini-details {
+    @apply text-xs text-text-muted;
+  }
+  
+  .pet-status {
+    @apply inline-block px-2 py-0.5 rounded-full text-[0.625rem] font-medium;
+  }
+}
+
+/* Pet details modal */
+@layer components {
+  .modal-body {
+    @apply flex-1 overflow-y-auto px-6 pb-4;
+  }
+  
+  .pet-details-content {
+    @apply flex flex-col gap-3;
+  }
+  
+  .pet-photo-section {
+    @apply w-full max-w-[800px] h-[400px] md:h-[600px] rounded-xl overflow-hidden bg-bg-tertiary border border-border mx-auto;
+  }
+  
+  .pet-photo-section img {
+    @apply w-full h-full object-cover;
+  }
+  
+  .pet-info-grid {
+    @apply grid grid-cols-2 md:grid-cols-3 gap-3;
+  }
+  
+  .pet-info-item {
+    @apply flex flex-col gap-1;
+  }
+  
+  .pet-info-label {
+    @apply text-xs uppercase tracking-wide text-text-muted font-semibold;
+  }
+  
+  .pet-info-value {
+    @apply text-base text-text-primary;
+  }
+  
+  .pet-description-section {
+    @apply flex flex-col gap-2;
+  }
+  
+  .pet-description-section h3 {
+    @apply text-sm uppercase tracking-wide text-text-muted font-semibold;
+  }
+  
+  .pet-description-section p {
+    @apply text-text-secondary leading-relaxed;
+  }
+}
+
+/* Pet edit modal form */
+@layer components {
+  .form-group-modal {
+    @apply flex flex-col gap-2;
+  }
+  
+  .form-group-modal label {
+    @apply text-sm text-text-secondary font-medium;
+  }
+  
+  .form-group-modal input[type="text"],
+  .form-group-modal input[type="date"],
+  .form-group-modal textarea,
+  .form-group-modal select {
+    @apply p-3 border border-border rounded-lg bg-bg-tertiary text-text-primary text-base w-full
+           focus:outline-none focus:border-accent;
+  }
+  
+  .form-row-modal {
+    @apply grid grid-cols-2 gap-3;
+  }
+  
+  .photo-upload-section {
+    @apply flex flex-col gap-2;
+  }
+  
+  .photo-preview-grid {
+    @apply flex gap-2 flex-wrap;
+  }
+  
+  .photo-preview-item {
+    @apply relative w-full max-w-[800px] h-auto aspect-[4/3] rounded-lg overflow-hidden border border-border;
+  }
+  
+  .photo-preview-item img {
+    @apply w-full h-full object-cover;
+  }
+  
+  .photo-remove-btn {
+    @apply absolute -top-1 -right-1 bg-danger text-white border-none rounded-full w-6 h-6 cursor-pointer text-sm
+           flex items-center justify-center hover:bg-danger-hover;
+  }
+  
+  .receipt-info {
+    @apply p-3 bg-bg-tertiary rounded-lg border border-border flex items-center gap-2 text-sm;
+  }
+  
+  .receipt-info a {
+    @apply text-accent no-underline hover:underline;
+  }
+}

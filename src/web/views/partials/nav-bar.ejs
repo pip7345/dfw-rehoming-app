@@ -1,0 +1,14 @@
+<!-- Navigation -->
+<nav class="nav-bar">
+  <a href="/" class="nav-logo">🐕 DFW Rehoming</a>
+  <div class="flex items-center gap-4">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+      <form method="POST" action="/logout" class="inline">
+        <button type="submit" class="nav-link bg-transparent border-none p-0">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/register" class="btn btn-secondary">List Pet(s)</a>
+    <% } %>
+  </div>
+</nav>

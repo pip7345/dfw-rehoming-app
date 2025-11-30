@@ -1,0 +1,410 @@
+<%
+  // Pet Edit Tile - Editable form version
+  // Props: pet (optional - null for new pet), cloudinaryCloud, formId, packId
+  const isNew = !pet || !pet.id;
+  const petId = pet?.id || '';
+  const petName = pet?.name || '';
+  const petAnimalType = pet?.animal_type || 'dog';
+  const petBreed = pet?.breed || '';
+  const petAge = pet?.age || '';
+  const petSize = pet?.size || '';
+  const petStatus = pet?.status || 'available';
+  const petDescription = pet?.description || '';
+  const petAvailDate = pet?.custom_availability_date ? new Date(pet.custom_availability_date).toISOString().split('T')[0] : '';
+  const petExpiryDate = pet?.expiry_date ? new Date(pet.expiry_date).toISOString().split('T')[0] : '';
+  const petPhotos = pet?.cloudinary_public_ids || [];
+  const receiptId = pet?.Receipt_id || null;
+%>
+
+<div class="pet-edit-tile">
+  <form id="<%= formId %>" class="pet-edit-form">
+    <input type="hidden" name="pet_id" value="<%= petId %>" />
+    <input type="hidden" name="pack_id" value="<%= packId %>" />
+    
+    <!-- Photo Upload Section -->
+    <div class="pet-edit-photo-section">
+      <div class="pet-edit-photo-preview" id="<%= formId %>-photo-preview">
+        <% if (petPhotos.length > 0) { %>
+          <% petPhotos.forEach((photoId, index) => { %>
+            <div class="pet-edit-photo-item">
+              <img src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_fill,w_200,h_150/<%= photoId %>.jpg" alt="Pet photo <%= index + 1 %>" />
+              <button type="button" class="pet-edit-photo-remove" onclick="removePhoto('<%= formId %>', <%= index %>)">×</button>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="pet-edit-photo-placeholder">
+            <span style="font-size: 3rem;">📷</span>
+            <span style="font-size: 0.875rem; color: var(--text-muted);">No photos</span>
+          </div>
+        <% } %>
+      </div>
+      <button type="button" class="pet-edit-upload-btn" onclick="openPhotoUpload('<%= formId %>')">
+        📸 Upload Photos
+      </button>
+    </div>
+    
+    <!-- Form Fields -->
+    <div class="pet-edit-fields">
+      <div class="pet-edit-field">
+        <label for="<%= formId %>-name">Name *</label>
+        <input 
+          type="text" 
+          id="<%= formId %>-name" 
+          name="name" 
+          value="<%= petName %>"
+          required
+          placeholder="e.g., Max"
+        />
+      </div>
+      
+      <div class="pet-edit-field-group">
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-animal-type">Animal Type</label>
+          <select id="<%= formId %>-animal-type" name="animal_type">
+            <option value="dog" <%= petAnimalType === 'dog' ? 'selected' : '' %>>🐕 Dog</option>
+            <option value="cat" <%= petAnimalType === 'cat' ? 'selected' : '' %>>🐱 Cat</option>
+            <option value="other" <%= petAnimalType === 'other' ? 'selected' : '' %>>🐾 Other</option>
+          </select>
+        </div>
+        
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-breed">Breed</label>
+          <input 
+            type="text" 
+            id="<%= formId %>-breed" 
+            name="breed" 
+            value="<%= petBreed %>"
+            placeholder="e.g., Labrador Retriever"
+          />
+        </div>
+      </div>
+      
+      <div class="pet-edit-field-group">
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-age">Age</label>
+          <select id="<%= formId %>-age" name="age">
+            <option value="">Select age</option>
+            <option value="less_than_8_months" <%= petAge === 'less_than_8_months' ? 'selected' : '' %>>Puppy (&lt; 8 months)</option>
+            <option value="eight_to_12_months" <%= petAge === 'eight_to_12_months' ? 'selected' : '' %>>Young (8-12 months)</option>
+            <option value="one_to_three_years" <%= petAge === 'one_to_three_years' ? 'selected' : '' %>>Young Adult (1-3 years)</option>
+            <option value="four_to_six_years" <%= petAge === 'four_to_six_years' ? 'selected' : '' %>>Adult (4-6 years)</option>
+            <option value="seven_plus_years" <%= petAge === 'seven_plus_years' ? 'selected' : '' %>>Senior (7+ years)</option>
+          </select>
+        </div>
+        
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-size">Size</label>
+          <select id="<%= formId %>-size" name="size">
+            <option value="">Select size</option>
+            <option value="small" <%= petSize === 'small' ? 'selected' : '' %>>Small (&lt; 25 lbs)</option>
+            <option value="medium" <%= petSize === 'medium' ? 'selected' : '' %>>Medium (25-60 lbs)</option>
+            <option value="large" <%= petSize === 'large' ? 'selected' : '' %>>Large (60+ lbs)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="pet-edit-field">
+        <label for="<%= formId %>-status">Status</label>
+        <select id="<%= formId %>-status" name="status">
+          <option value="available" <%= petStatus === 'available' ? 'selected' : '' %>>Available</option>
+          <option value="pending" <%= petStatus === 'pending' ? 'selected' : '' %>>Pending/Reserved</option>
+          <option value="adopted" <%= petStatus === 'adopted' ? 'selected' : '' %>>Adopted/Sold</option>
+          <option value="hidden" <%= petStatus === 'hidden' ? 'selected' : '' %>>Hidden</option>
+        </select>
+      </div>
+      
+      <div class="pet-edit-field">
+        <label for="<%= formId %>-description">Description</label>
+        <textarea 
+          id="<%= formId %>-description" 
+          name="description" 
+          rows="3"
+          placeholder="Describe the dog's personality, habits, medical needs..."
+        ><%= petDescription %></textarea>
+      </div>
+      
+      <div class="pet-edit-field-group">
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-avail-date">Available Date</label>
+          <input 
+            type="date" 
+            id="<%= formId %>-avail-date" 
+            name="custom_availability_date"
+            value="<%= petAvailDate %>"
+          />
+        </div>
+        
+        <div class="pet-edit-field">
+          <label for="<%= formId %>-expiry-date">Expiry Date *</label>
+          <input 
+            type="date" 
+            id="<%= formId %>-expiry-date" 
+            name="expiry_date"
+            value="<%= petExpiryDate %>"
+            required
+          />
+        </div>
+      </div>
+      
+      <!-- Receipt Info -->
+      <% if (!isNew) { %>
+        <div class="pet-edit-receipt">
+          <% if (receiptId) { %>
+            <a href="/receipt/<%= receiptId %>" target="_blank" class="pet-edit-receipt-link">
+              🧭 View Receipt
+            </a>
+          <% } else { %>
+            <div class="pet-edit-receipt-unpaid">
+              ⚠️ Not yet paid
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="pet-edit-actions">
+      <% if (!isNew) { %>
+        <button type="button" class="pet-edit-btn pet-edit-btn-danger" onclick="deletePet('<%= petId %>')">
+          🗑️ Delete
+        </button>
+      <% } %>
+      <button type="button" class="pet-edit-btn pet-edit-btn-secondary" onclick="cancelPetEdit('<%= formId %>')">
+        Cancel
+      </button>
+      <button type="submit" class="pet-edit-btn pet-edit-btn-primary">
+        <%= isNew ? '➕ Add Pet' : '💾 Save Changes' %>
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .pet-edit-tile {
+    min-width: 280px;
+    max-width: 320px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .pet-edit-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* Photo Upload Section */
+  .pet-edit-photo-section {
+    background: var(--bg-tertiary);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .pet-edit-photo-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+    min-height: 120px;
+  }
+  
+  .pet-edit-photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .pet-edit-photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .pet-edit-photo-remove {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.95);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pet-edit-photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-hover);
+    border-radius: 6px;
+    min-height: 120px;
+  }
+  
+  .pet-edit-upload-btn {
+    padding: 0.625rem 1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .pet-edit-upload-btn:hover {
+    background: var(--accent-hover);
+  }
+  
+  /* Form Fields - Scrollable to fit in fixed tile height */
+  .pet-edit-fields {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+  }
+  
+  .pet-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  
+  .pet-edit-field label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  
+  .pet-edit-field input,
+  .pet-edit-field select,
+  .pet-edit-field textarea {
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  
+  .pet-edit-field input:focus,
+  .pet-edit-field select:focus,
+  .pet-edit-field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  
+  .pet-edit-field textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+  
+  .pet-edit-field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+  }
+  
+  /* Receipt Info */
+  .pet-edit-receipt {
+    padding: 0.75rem;
+    background: var(--bg-hover);
+    border-radius: 6px;
+    text-align: center;
+  }
+  
+  .pet-edit-receipt-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  
+  .pet-edit-receipt-link:hover {
+    background: var(--accent-hover);
+  }
+  
+  .pet-edit-receipt-unpaid {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    border: 1px solid var(--warning);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  /* Action Buttons */
+  .pet-edit-actions {
+    padding: 1rem 1.25rem 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .pet-edit-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .pet-edit-btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  
+  .pet-edit-btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  
+  .pet-edit-btn-secondary {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+  }
+  
+  .pet-edit-btn-secondary:hover {
+    background: var(--bg-tertiary);
+  }
+  
+  .pet-edit-btn-danger {
+    background: var(--danger);
+    color: white;
+    flex: 0 0 auto;
+  }
+  
+  .pet-edit-btn-danger:hover {
+    background: var(--danger-hover);
+  }
+</style>

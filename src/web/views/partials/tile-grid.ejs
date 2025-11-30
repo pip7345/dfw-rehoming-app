@@ -1,0 +1,33 @@
+<div class="grid grid-cols-[repeat(auto-fill,minmax(280px,488px))] gap-6 justify-start w-full">
+<style>
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 380px));
+    gap: 1.5rem;
+    justify-content: start;
+    width: 100%;
+  }
+  
+  /* Centered layout for fewer items */
+  .tile-grid.tile-grid-centered {
+    justify-content: center;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .tile-grid {
+      grid-template-columns: 1fr;
+      justify-content: stretch;
+    }
+    
+    .tile-grid > * {
+      max-width: 100%;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .tile-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+</style>

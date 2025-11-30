@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - DFW Dog Rehoming</title>
+  <link href="/tailwind.css" rel="stylesheet" />
+</head>
+<body>
+  <!-- Toast container for messages -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <%- include('partials/nav-bar', { user }) %>
+
+  <div class="dashboard-grid">
+    <aside class="sidebar">
+      <h2>Contact Settings</h2>
+      <form class="contact-form" id="contact-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" value="<%= contactPrefs && contactPrefs.email ? contactPrefs.email : user.email %>" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="show_email" <%= contactPrefs && contactPrefs.show_email ? 'checked' : '' %> />
+            Show email publicly
+          </label>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" name="phone" value="<%= contactPrefs && contactPrefs.phone ? contactPrefs.phone : '' %>" placeholder="(555) 123-4567" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="show_phone" <%= contactPrefs && contactPrefs.show_phone ? 'checked' : '' %> />
+            Show phone publicly
+          </label>
+        </div>
+        
+        <div class="contact-section">
+          <h3>Facebook Messenger</h3>
+          <div class="form-group">
+            <label>Messenger Username</label>
+            <input type="text" name="messenger_username" value="<%= contactPrefs && contactPrefs.messenger_username ? contactPrefs.messenger_username : '' %>" placeholder="your.username" />
+            <span class="messenger-help">Your Facebook username (found in your profile URL: facebook.com/your.username)</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="show_messenger" <%= contactPrefs && contactPrefs.show_messenger ? 'checked' : '' %> />
+              Show Messenger link publicly
+            </label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Contact Info</button>
+      </form>
+    </aside>
+
+    <main class="main-content">
+      <div class="section-header">
+        <h1 class="text-3xl font-bold text-text-primary">My Packs</h1>
+        <a href="/create-pack" class="btn btn-success">+ New Pack</a>
+      </div>
+
+      <% if (packs && packs.length > 0) { %>
+        <% packs.forEach(pack => { 
+          // Check if pack has any unpaid pets
+          const hasUnpaidPets = pack.pets && pack.pets.some(pet => !pet.Receipt_id);
+          // Collect distinct receipt IDs for paid pets
+          const receiptIds = (pack.pets || []).filter(p => p.Receipt_id).map(p => p.Receipt_id);
+          const uniqueReceiptIds = [...new Set(receiptIds)];
+          const isFullyPaid = (pack.pets && pack.pets.length > 0 && !hasUnpaidPets && uniqueReceiptIds.length > 0);
+        %>
+          <div class="pack-card" data-pack-id="<%= pack.id %>">
+            <div class="pack-header">
+              <div class="flex items-center justify-between gap-4 w-full">
+                <div class="flex-1">
+                  <h3 class="pack-name">
+                    <%= pack.name %>
+                    <% if (hasUnpaidPets) { %>
+                      <span class="pending-payment-badge">⏳ Pending Payment</span>
+                    <% } %>
+                  </h3>
+                  <% if (pack.description) { %>
+                    <p class="pack-description"><%= pack.description %></p>
+                  <% } %>
+                </div>
+                <div class="pack-actions flex gap-3 flex-wrap">
+                  <% if (hasUnpaidPets) { %>
+                    <a href="/checkout?packId=<%= pack.id %>" class="btn btn-primary">💳 Checkout</a>
+                  <% } %>
+                  <% if (isFullyPaid) { %>
+                    <a href="/receipt/<%= uniqueReceiptIds[0] %>" class="btn btn-primary" title="View Receipt">🧾 Receipt</a>
+                  <% } %>
+                  <a href="/create-pack?id=<%= pack.id %>" class="btn btn-primary">Edit Pack</a>
+                  <a href="/pack/<%= pack.id %>" class="btn btn-primary" target="_blank">View</a>
+                  <button class="btn btn-primary" onclick="deletePack('<%= pack.id %>', '<%= pack.name %>')">Delete</button>
+                </div>
+              </div>
+            </div>
+            
+            <% if (pack.pets && pack.pets.length > 0) { %>
+              <div class="tile-grid">
+                <% pack.pets.forEach(pet => { %>
+                  <%- include('partials/pet-tile', { 
+                    pet, 
+                    cloudinaryCloud, 
+                    isLister: true,
+                    showEdit: true
+                  }) %>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <div class="empty-state">
+                <p>No pets in this pack yet. Add your first pet!</p>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="pack-card">
+          <div class="empty-state">
+            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No packs yet</h3>
+            <p>Create a pack to start listing your dogs for rehoming.</p>
+          </div>
+        </div>
+      <% } %>
+    </main>
+  </div>
+
+  <!-- Pack Modal (larger, with dog list and inline add) -->
+  <div class="modal" id="pack-modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2 class="modal-title" id="pack-modal-title">Create Pack</h2>
+        <button class="modal-close" onclick="closePackModal()">&times;</button>
+      </div>
+      <div class="pack-modal-grid">
+        <div class="pack-details-tile">
+          <h3>Pack Details</h3>
+          <form id="pack-form" class="contact-form">
+            <input type="hidden" name="pack_id" id="pack-id" />
+            <div class="form-group">
+              <label>Pack Name</label>
+              <input type="text" name="name" id="pack-name" placeholder="e.g., The Smith Family Dogs" />
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" id="pack-description" rows="3" placeholder="Tell potential adopters about your dogs..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="single_pet" id="pack-single-pet" onchange="toggleSinglePet()" />
+                This is a single pet
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="pack-modal-section" id="pack-dogs-section">
+          <h3>Pets</h3>
+          <div class="pack-dogs-list" id="pack-dogs-list">
+            <p style="color: var(--text-muted); text-align: center;">No pets added yet</p>
+          </div>
+          
+          <!-- Inline pet form -->
+          <div class="inline-dog-form" id="inline-dog-form">
+            <h4>Add New Pet</h4>
+            <form id="inline-pet-form">
+              <div class="inline-form-grid">
+                <div class="form-group">
+                  <label>Name *</label>
+                  <input type="text" name="name" id="inline-pet-name" required placeholder="Buddy" />
+                </div>
+                <div class="form-group">
+                  <label>Animal Type</label>
+                  <select name="animal_type" id="inline-pet-animal-type">
+                    <option value="dog">Dog</option>
+                    <option value="cat">Cat</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Breed</label>
+                  <input type="text" name="breed" id="inline-pet-breed" placeholder="Golden Retriever" />
+                </div>
+                <div class="form-group">
+                  <label>Age</label>
+                  <select name="age" id="inline-pet-age">
+                    <option value="">Select...</option>
+                    <option value="PUPPY">Puppy</option>
+                    <option value="YOUNG">Young</option>
+                    <option value="ADULT">Adult</option>
+                    <option value="SENIOR">Senior</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Size</label>
+                  <select name="size" id="inline-pet-size">
+                    <option value="">Select...</option>
+                    <option value="SMALL">Small</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LARGE">Large</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label>Description</label>
+                  <textarea name="description" id="inline-pet-description" rows="2" placeholder="Brief description..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Expiry Date *</label>
+                  <input type="date" name="expiry_date" id="inline-pet-expiry" required />
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                  <button type="submit" class="btn btn-success" style="width: 100%;">Add Pet</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="add-dog-to-pack-btn" onclick="showInlineDogForm()">+ Add Pet to Pack</button>
+        <button type="button" class="btn btn-secondary" onclick="closePackModal()">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="savePackOnly()">Save Pack</button>
+        <button type="button" class="btn btn-primary" onclick="proceedToCheckout()">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pet Modal (for editing existing pets) -->
+  <div class="modal" id="pet-modal">
+    <div class="modal-content modal-medium">
+      <div class="modal-header">
+        <h2 class="modal-title" id="pet-modal-title">Edit Pet</h2>
+        <button class="modal-close" onclick="closePetModal()">&times;</button>
+      </div>
+      <form id="pet-form" class="contact-form">
+        <input type="hidden" name="pet_id" id="pet-id" />
+        <input type="hidden" name="pack_id" id="pet-pack-id" />
+        <div class="form-group">
+          <label>Pet Name *</label>
+          <input type="text" name="name" id="pet-name" required placeholder="e.g., Buddy" />
+        </div>
+        <div class="form-group">
+          <label>Breed</label>
+          <input type="text" name="breed" id="pet-breed" placeholder="e.g., Golden Retriever" />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Age</label>
+            <select name="age" id="pet-age">
+              <option value="">Select age...</option>
+              <option value="PUPPY">Puppy (&lt; 1 year)</option>
+              <option value="YOUNG">Young (1-3 years)</option>
+              <option value="ADULT">Adult (3-7 years)</option>
+              <option value="SENIOR">Senior (7+ years)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Size</label>
+            <select name="size" id="pet-size">
+              <option value="">Select size...</option>
+              <option value="SMALL">Small (&lt; 25 lbs)</option>
+              <option value="MEDIUM">Medium (25-60 lbs)</option>
+              <option value="LARGE">Large (60+ lbs)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status" id="pet-status">
+            <option value="AVAILABLE">Available</option>
+            <option value="PENDING">Pending</option>
+            <option value="ADOPTED">Adopted</option>
+            <option value="WITHDRAWN">Withdrawn</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" id="pet-description" rows="3" placeholder="Tell adopters about this dog's personality, history, needs..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Listing Expiry Date *</label>
+          <input type="date" name="expiry_date" id="pet-expiry" required />
+        </div>
+        
+        <!-- Cloudinary upload section -->
+        <div class="form-group">
+          <label>Photos</label>
+          <div id="photo-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;"></div>
+          <button type="button" class="btn btn-secondary" id="upload-photos-btn" onclick="openCloudinaryWidget()">📷 Upload Photos</button>
+          <input type="hidden" name="cloudinary_public_ids" id="pet-photos" />
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closePetModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="deletePet()" id="delete-pet-btn" style="display: none;">Delete</button>
+          <button type="submit" class="btn btn-success" style="flex: 1;">Save Pet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cloudinary Upload Widget Script -->
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+  
+  <script>
+    const API_URL = '/api';
+    const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
+    const CLOUDINARY_PRESET = '<%= cloudinaryPreset || "unsigned_preset" %>';
+    let currentEditingPackId = null;
+    let currentPetPhotos = [];
+    let tempPackDogs = []; // Temporary array to hold dogs before pack is saved
+
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Contact form with messenger support
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        email: form.email.value,
+        phone: form.phone.value,
+        show_email: form.show_email.checked,
+        show_phone: form.show_phone.checked,
+        messenger_username: form.messenger_username.value,
+        show_messenger: form.show_messenger.checked
+      };
+      try {
+        const res = await fetch(`${API_URL}/listers/me/contact`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          showToast('✓ Contact info saved!', 'success');
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to save contact info'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error saving contact info', 'error');
+      }
+    });
+
+    // Pack modal
+    function openPackModal(packId = null, name = '', description = '') {
+      currentEditingPackId = packId;
+      tempPackDogs = []; // Reset temp dogs array
+      document.getElementById('pack-modal-title').textContent = packId ? 'Edit Pack' : 'Create Pack';
+      document.getElementById('pack-id').value = packId || '';
+      document.getElementById('pack-name').value = name;
+      document.getElementById('pack-description').value = description;
+      
+      const dogsList = document.getElementById('pack-dogs-list');
+      const inlineForm = document.getElementById('inline-dog-form');
+      inlineForm.classList.remove('active');
+      
+      if (packId) {
+        // Load dogs for this existing pack
+        loadPackDogs(packId);
+      } else {
+        // New pack - show empty state
+        dogsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No dogs added yet</p>';
+      }
+      
+      document.getElementById('pack-modal').classList.add('active');
+    }
+
+    async function loadPackDogs(packId) {
+      const dogsList = document.getElementById('pack-dogs-list');
+      dogsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Loading...</p>';
+      
+      try {
+        const res = await fetch(`${API_URL}/packs/${packId}`, {
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const pack = await res.json();
+          if (pack.pets && pack.pets.length > 0) {
+            dogsList.innerHTML = pack.pets.map(pet => `
+              <div class="pack-dog-item">
+                <div style="width: 50px; height: 50px; background: var(--bg-hover); border-radius: 6px; display: flex; align-items: center; justify-content: center;">🐕</div>
+                <div class="pack-dog-info">
+                  <div class="pack-dog-name">${pet.name || 'Unnamed'}</div>
+                  <div class="pack-dog-details">${pet.breed || 'Unknown breed'} · ${pet.age ? pet.age.toLowerCase() : 'Unknown age'}</div>
+                </div>
+                <button class="btn btn-secondary" onclick="editPetFromPack('${pet.id}')">Edit</button>
+              </div>
+            `).join('');
+          } else {
+            dogsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No dogs added yet</p>';
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        dogsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Error loading dogs</p>';
+      }
+    }
+
+    function showInlineDogForm() {
+      const form = document.getElementById('inline-dog-form');
+      form.classList.toggle('active');
+      if (form.classList.contains('active')) {
+        // Set default expiry
+        const expiry = new Date();
+        expiry.setDate(expiry.getDate() + 30);
+        document.getElementById('inline-pet-expiry').value = expiry.toISOString().split('T')[0];
+      }
+    }
+
+    function closePackModal() {
+      document.getElementById('pack-modal').classList.remove('active');
+      currentEditingPackId = null;
+      tempPackDogs = [];
+    }
+
+    function editPack(id, name, description) {
+      openPackModal(id, name, description);
+    }
+
+    // Display temporary dogs (not yet saved)
+    function displayTempDogs() {
+      const dogsList = document.getElementById('pack-dogs-list');
+      if (tempPackDogs.length === 0) {
+        dogsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No dogs added yet</p>';
+      } else {
+        dogsList.innerHTML = tempPackDogs.map(dog => `
+          <div class="pack-dog-item">
+            <div style="width: 50px; height: 50px; background: var(--bg-hover); border-radius: 6px; display: flex; align-items: center; justify-content: center;">🐕</div>
+            <div class="pack-dog-info">
+              <div class="pack-dog-name">${dog.name || 'Unnamed'}</div>
+              <div class="pack-dog-details">${dog.breed || 'Unknown breed'} · ${dog.age ? dog.age.toLowerCase() : 'Unknown age'}</div>
+            </div>
+            <button class="btn btn-danger" onclick="removeTempDog(${dog.tempId})" style="padding: 0.25rem 0.75rem;">Remove</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Remove a temporary dog
+    function removeTempDog(tempId) {
+      tempPackDogs = tempPackDogs.filter(d => d.tempId !== tempId);
+      displayTempDogs();
+      showToast('✓ Dog removed', 'info');
+    }
+
+    // Toggle single pet mode
+    function toggleSinglePet() {
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packNameInput = document.getElementById('pack-name');
+      const packDescInput = document.getElementById('pack-description');
+      
+      packNameInput.disabled = isSinglePet;
+      packDescInput.disabled = isSinglePet;
+      
+      if (isSinglePet) {
+        packNameInput.value = '';
+        packDescInput.value = '';
+      }
+    }
+
+    // Proceed to checkout with pack and dogs
+    function proceedToCheckout() {
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packName = document.getElementById('pack-name').value.trim();
+      const packDescription = document.getElementById('pack-description').value.trim();
+      
+      if (tempPackDogs.length === 0 && !currentEditingPackId) {
+        showToast('✗ Please add at least one dog to the pack', 'error');
+        return;
+      }
+      
+      // Store data in sessionStorage for checkout page
+      const checkoutData = {
+        packName: packName || 'My Pet Listing',
+        packDescription: isSinglePet ? '' : packDescription,
+        packId: currentEditingPackId,
+        dogs: tempPackDogs,
+        isSinglePet: isSinglePet
+      };
+      
+      sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+      
+      // Navigate to checkout
+      window.location.href = '/checkout';
+    }
+
+    // Save pack only (without proceeding to checkout)
+    async function savePackOnly() {
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packName = document.getElementById('pack-name').value.trim();
+      const packDescription = document.getElementById('pack-description').value.trim();
+      const packId = document.getElementById('pack-id').value;
+      
+      const data = {
+        name: packName || 'My Pet Listing',
+        description: isSinglePet ? '' : packDescription
+      };
+      
+      try {
+        const url = packId ? `${API_URL}/packs/${packId}` : `${API_URL}/packs`;
+        const method = packId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          const savedPack = await res.json();
+          if (!packId) {
+            // New pack created, update modal to edit mode
+            currentEditingPackId = savedPack.id;
+            document.getElementById('pack-id').value = savedPack.id;
+            document.getElementById('pack-modal-title').textContent = 'Edit Pack';
+            document.getElementById('pack-dogs-list').innerHTML = '<p style="color: var(--text-muted); text-align: center;">No dogs added yet</p>';
+            showToast('✓ Pack created! Now add some dogs.', 'success');
+          } else {
+            showToast('✓ Pack saved successfully!', 'success');
+          }
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to save pack'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error saving pack', 'error');
+      }
+    }
+
+    // Inline pet form (add dog within pack modal)
+    document.getElementById('inline-pet-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const form = e.target;
+      const dogData = {
+        name: document.getElementById('inline-pet-name').value,
+        breed: document.getElementById('inline-pet-breed').value || null,
+        age: document.getElementById('inline-pet-age').value || null,
+        size: document.getElementById('inline-pet-size').value || null,
+        status: 'AVAILABLE',
+        description: document.getElementById('inline-pet-description').value || null,
+        expiry_date: document.getElementById('inline-pet-expiry').value,
+        tempId: Date.now() // Temporary ID for tracking before save
+      };
+      
+      if (currentEditingPackId) {
+        // Existing pack - save dog immediately to API
+        try {
+          const res = await fetch(`${API_URL}/pets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ ...dogData, pack_id: currentEditingPackId })
+          });
+          if (res.ok) {
+            showToast('✓ Dog added to pack!', 'success');
+            form.reset();
+            document.getElementById('inline-dog-form').classList.remove('active');
+            loadPackDogs(currentEditingPackId);
+          } else {
+            const err = await res.json();
+            showToast('✗ ' + (err.error || 'Failed to add dog'), 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('✗ Error adding dog', 'error');
+        }
+      } else {
+        // New pack - add to temporary array
+        tempPackDogs.push(dogData);
+        showToast('✓ Dog added! Add more or proceed to checkout.', 'success');
+        form.reset();
+        document.getElementById('inline-dog-form').classList.remove('active');
+        displayTempDogs();
+      }
+    });
+
+    // Pet modal (for editing)
+    function openPetModal(packId = null) {
+      document.getElementById('pet-modal-title').textContent = 'Add Pet';
+      document.getElementById('pet-id').value = '';
+      document.getElementById('pet-pack-id').value = packId || '';
+      document.getElementById('pet-name').value = '';
+      document.getElementById('pet-breed').value = '';
+      document.getElementById('pet-age').value = '';
+      document.getElementById('pet-size').value = '';
+      document.getElementById('pet-status').value = 'AVAILABLE';
+      document.getElementById('pet-description').value = '';
+      document.getElementById('delete-pet-btn').style.display = 'none';
+      currentPetPhotos = [];
+      updatePhotoPreview();
+      
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + 30);
+      document.getElementById('pet-expiry').value = expiry.toISOString().split('T')[0];
+      document.getElementById('pet-modal').classList.add('active');
+    }
+
+    function closePetModal() {
+      document.getElementById('pet-modal').classList.remove('active');
+    }
+
+    function editPetFromPack(petId) {
+      // Close pack modal, fetch pet and open pet modal
+      closePackModal();
+      fetchAndEditPet(petId);
+    }
+
+    async function fetchAndEditPet(petId) {
+      try {
+        const res = await fetch(`${API_URL}/pets/${petId}`, {
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const pet = await res.json();
+          editPetData(pet);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error loading pet', 'error');
+      }
+    }
+
+    function editPet(petJson) {
+      const pet = JSON.parse(petJson.replace(/&quot;/g, '"'));
+      editPetData(pet);
+    }
+
+    function editPetData(pet) {
+      document.getElementById('pet-modal-title').textContent = 'Edit Pet';
+      document.getElementById('pet-id').value = pet.id;
+      document.getElementById('pet-pack-id').value = pet.pack_id;
+      document.getElementById('pet-name').value = pet.name || '';
+      document.getElementById('pet-breed').value = pet.breed || '';
+      document.getElementById('pet-age').value = pet.age || '';
+      document.getElementById('pet-size').value = pet.size || '';
+      document.getElementById('pet-status').value = pet.status || 'AVAILABLE';
+      document.getElementById('pet-description').value = pet.description || '';
+      document.getElementById('delete-pet-btn').style.display = 'inline-flex';
+      
+      currentPetPhotos = pet.cloudinary_public_ids || [];
+      updatePhotoPreview();
+      
+      if (pet.expiry_date) {
+        document.getElementById('pet-expiry').value = new Date(pet.expiry_date).toISOString().split('T')[0];
+      }
+      document.getElementById('pet-modal').classList.add('active');
+    }
+
+    function updatePhotoPreview() {
+      const preview = document.getElementById('photo-preview');
+      if (currentPetPhotos.length === 0) {
+        preview.innerHTML = '<span style="color: var(--text-muted); font-size: 0.875rem;">No photos uploaded</span>';
+      } else {
+        preview.innerHTML = currentPetPhotos.map((id, i) => `
+          <div style="position: relative;">
+            <img src="https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_107,h_80/${id}" 
+                 style="border-radius: 6px; width: 80px; height: 80px; object-fit: cover;" />
+            <button type="button" onclick="removePhoto(${i})" 
+                    style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">×</button>
+          </div>
+        `).join('');
+      }
+      document.getElementById('pet-photos').value = JSON.stringify(currentPetPhotos);
+    }
+
+    function removePhoto(index) {
+      currentPetPhotos.splice(index, 1);
+      updatePhotoPreview();
+    }
+
+    function openCloudinaryWidget() {
+      if (!CLOUDINARY_CLOUD) {
+        showToast('✗ Cloudinary not configured', 'error');
+        return;
+      }
+      
+      const widget = cloudinary.createUploadWidget({
+        cloudName: CLOUDINARY_CLOUD,
+        uploadPreset: CLOUDINARY_PRESET,
+        sources: ['local', 'camera'],
+        multiple: true,
+        maxFiles: 10,
+        resourceType: 'image',
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 5000000,
+        styles: {
+          palette: {
+            window: '#1a1d26',
+            windowBorder: '#374151',
+            tabIcon: '#3b82f6',
+            menuIcons: '#9ca3af',
+            textDark: '#0f1117',
+            textLight: '#f3f4f6',
+            link: '#3b82f6',
+            action: '#10b981',
+            inactiveTabIcon: '#6b7280',
+            error: '#ef4444',
+            inProgress: '#3b82f6',
+            complete: '#10b981',
+            sourceBg: '#252830'
+          }
+        }
+      }, (error, result) => {
+        if (result.event === 'success') {
+          currentPetPhotos.push(result.info.public_id);
+          updatePhotoPreview();
+          showToast('✓ Photo uploaded!', 'success');
+        }
+      });
+      widget.open();
+    }
+
+    async function deletePet() {
+      const petId = document.getElementById('pet-id').value;
+      if (!petId) return;
+      
+      if (!confirm('Are you sure you want to delete this pet?')) return;
+      
+      try {
+        const res = await fetch(`${API_URL}/pets/${petId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          showToast('✓ Pet deleted', 'success');
+          closePetModal();
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to delete pet'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error deleting pet', 'error');
+      }
+    }
+
+    async function deletePack(packId, packName) {
+      if (!confirm(`Are you sure you want to delete "${packName}"? This will also delete all pets in this pack.`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_URL}/packs/${packId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        
+        if (res.ok) {
+          showToast('✓ Pack deleted successfully', 'success');
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to delete pack'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error deleting pack', 'error');
+      }
+    }
+
+    document.getElementById('pet-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const petId = form.pet_id.value;
+      const data = {
+        pack_id: form.pack_id.value,
+        name: form.name.value,
+        breed: form.breed.value || null,
+        age: form.age.value || null,
+        size: form.size.value || null,
+        status: form.status.value,
+        description: form.description.value || null,
+        expiry_date: form.expiry_date.value,
+        cloudinary_public_ids: currentPetPhotos
+      };
+      try {
+        const url = petId ? `${API_URL}/pets/${petId}` : `${API_URL}/pets`;
+        const method = petId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          showToast('✓ Pet saved successfully!', 'success');
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to save pet'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error saving pet', 'error');
+      }
+    });
+  </script>
+
+  <%- include('partials/pet-details-modal') %>
+  <%- include('partials/pet-edit-modal') %>
+
+  <script>
+    // Set flag for pet details modal to show edit button
+    window.isListerView = true;
+  </script>
+</body>
+</html>

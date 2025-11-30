@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DFW Rehoming</title>
+  <link href="/tailwind.css" rel="stylesheet" />
+</head>
+<body>
+  <%- include('partials/nav-bar', { user }) %>
+
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <!-- Search Bar -->
+    <form class="card mb-6" method="get" action="/">
+      <!-- Main search row -->
+      <div class="flex gap-2 items-center mb-0">
+        <input 
+          type="text" 
+          name="q" 
+          class="input flex-1 !py-2 !px-3" 
+          placeholder="Search by breed or description..." 
+          value="<%= typeof query !== 'undefined' ? query : '' %>"
+        />
+        <button type="submit" class="btn btn-primary !py-2 !px-4">Search</button>
+        <button 
+          type="button" 
+          class="btn btn-secondary !py-2 !px-4" 
+          onclick="document.getElementById('filter-container').classList.toggle('hidden')"
+        >
+          <span class="hidden sm:inline">Filters</span>
+          <span class="sm:hidden">+</span>
+        </button>
+      </div>
+
+      <!-- Collapsible filters row -->
+      <div id="filter-container" class="hidden mt-3 pt-3 border-t border-border">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2">
+          <select name="animal_type" class="select !py-2 !px-3">
+            <option value="">All Animals</option>
+            <option value="dog" <%= typeof filters !== 'undefined' && filters.animal_type === 'dog' ? 'selected' : '' %>>Dogs</option>
+            <option value="cat" <%= typeof filters !== 'undefined' && filters.animal_type === 'cat' ? 'selected' : '' %>>Cats</option>
+            <option value="other" <%= typeof filters !== 'undefined' && filters.animal_type === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+          <select name="age" class="select !py-2 !px-3">
+            <option value="">All Ages</option>
+            <option value="less_than_8_months" <%= typeof filters !== 'undefined' && filters.age === 'less_than_8_months' ? 'selected' : '' %>>Less than 8 months</option>
+            <option value="eight_to_12_months" <%= typeof filters !== 'undefined' && filters.age === 'eight_to_12_months' ? 'selected' : '' %>>8-12 months</option>
+            <option value="one_to_3_years" <%= typeof filters !== 'undefined' && filters.age === 'one_to_3_years' ? 'selected' : '' %>>1-3 years</option>
+            <option value="four_to_7_years" <%= typeof filters !== 'undefined' && filters.age === 'four_to_7_years' ? 'selected' : '' %>>4-7 years</option>
+            <option value="eight_plus_years" <%= typeof filters !== 'undefined' && filters.age === 'eight_plus_years' ? 'selected' : '' %>>8+ years</option>
+          </select>
+          <select name="size" class="select !py-2 !px-3">
+            <option value="">All Sizes</option>
+            <option value="small" <%= typeof filters !== 'undefined' && filters.size === 'small' ? 'selected' : '' %>>Small</option>
+            <option value="medium" <%= typeof filters !== 'undefined' && filters.size === 'medium' ? 'selected' : '' %>>Medium</option>
+            <option value="large" <%= typeof filters !== 'undefined' && filters.size === 'large' ? 'selected' : '' %>>Large</option>
+            <option value="extra_large" <%= typeof filters !== 'undefined' && filters.size === 'extra_large' ? 'selected' : '' %>>Extra Large</option>
+          </select>
+          <input 
+            type="number" 
+            name="min_price" 
+            class="input !py-2 !px-3" 
+            placeholder="Min Price ($)" 
+            min="0" 
+            step="1"
+            value="<%= typeof filters !== 'undefined' && filters.min_price ? filters.min_price : '' %>"
+          />
+          <input 
+            type="number" 
+            name="max_price" 
+            class="input !py-2 !px-3" 
+            placeholder="Max Price ($)" 
+            min="0" 
+            step="1"
+            value="<%= typeof filters !== 'undefined' && filters.max_price ? filters.max_price : '' %>"
+          />
+        </div>
+      </div>
+    </form>
+
+    <!-- Pet Grid -->
+    <% if (typeof pets !== 'undefined' && pets.length > 0) { %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% pets.forEach(pet => { %>
+          <%- include('partials/pet-tile', { 
+            pet, 
+            cloudinaryCloud, 
+            isLister: false,
+            showEdit: false
+          }) %>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <h2 class="text-xl font-semibold text-text-secondary mb-2">No pets found</h2>
+        <p>Try adjusting your search filters or check back later</p>
+      </div>
+    <% } %>
+  </div>
+
+  <%- include('partials/pet-details-modal') %>
+
+  <script>
+    const API_URL = '/api';
+    const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
+    
+    function showToast(message, type = 'info') {
+      console.log(`[${type}] ${message}`);
+    }
+  </script>
+</body>
+</html>

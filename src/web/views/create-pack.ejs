@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Pack - DFW Dog Rehoming</title>
+  <link href="/tailwind.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-secondary: #1a1d26;
+      --bg-tertiary: #252830;
+      --bg-hover: #2d3140;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: #374151;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --success-hover: #059669;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+    }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+    }
+    /* deprecated inline layout styles removed; using Tailwind utilities instead */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .page-description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    /* section styles moved to shared .card */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .form-group label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .form-group input[type="text"],
+    .form-group textarea {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-group input:disabled,
+    .form-group textarea:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .checkbox-wrapper label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    /* pets section uses .card */
+    .pets-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    /* tile-grid now uses Tailwind grid utilities */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    /* buttons use shared .btn variants */
+    .action-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.5rem 0;
+    }
+    .action-bar .spacer {
+      flex: 1;
+    }
+    /* Toast notification */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 300px;
+    }
+    .toast-success { background: var(--success); }
+    .toast-error { background: var(--danger); }
+    .toast-info { background: var(--accent); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-bg-primary text-text-primary">
+  <!-- Toast container for messages -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <%- include('partials/nav-bar', { user }) %>
+
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold text-text-primary m-0">Create or update listing</h1>
+      <div class="flex gap-3 flex-wrap items-center">
+        <button type="button" class="btn btn-primary" onclick="openAddPetModal()">+ Add Pet</button>
+        <a href="/dashboard" class="btn btn-primary" onclick="return confirmCancel()">Cancel</a>
+        <button type="button" class="btn btn-primary" onclick="savePack()">Save Pack</button>
+        <button type="button" class="btn btn-primary" onclick="proceedToCheckout()">Proceed to Checkout</button>
+      </div>
+    </div>
+
+    <!-- Pack Details Section -->
+    <div class="card mb-8">
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-text-primary m-0">Pack Details</h2>
+      </div>
+      <form id="pack-form">
+        <input type="hidden" name="pack_id" id="pack-id" value="<%= packId || '' %>" />
+        
+        <div class="flex gap-4 items-start mb-4">
+          <div class="form-group" style="flex: 2;">
+            <label for="pack-name">Pack Name</label>
+            <input 
+              class="input"
+              type="text" 
+              name="name" 
+              id="pack-name" 
+              placeholder="e.g., The Smith Family Dogs"
+              value="<%= packName || '' %>" />
+          </div>
+          
+          <div class="checkbox-wrapper" style="align-self: flex-end; padding-bottom: 0.75rem;">
+            <input 
+              type="checkbox" 
+              name="single_pet" 
+              id="pack-single-pet" 
+              onchange="toggleSinglePet()"
+              <%= isSinglePet ? 'checked' : '' %> />
+            <label for="pack-single-pet">This is a single pet</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pack-description">Description</label>
+          <textarea 
+            class="input"
+            name="description" 
+            id="pack-description" 
+            rows="4" 
+            placeholder="Tell potential adopters about your dogs..."><%= packDescription || '' %></textarea>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pets Section -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-text-primary m-0">Pets</h2>
+      </div>
+      
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,320px))] gap-6 justify-start" id="pets-grid">
+        <% if (pets && pets.length > 0) { %>
+          <% pets.forEach(pet => { %>
+            <%- include('partials/pet-tile', { 
+              pet, 
+              cloudinaryCloud, 
+              isLister: true,
+              showEdit: true
+            }) %>
+          <% }); %>
+        <% } else { %>
+          <div class="text-center py-12 text-text-muted col-span-full">
+            <p>No pets added yet. Click "+ Add Pet" to get started.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/pet-edit-modal') %>
+  <%- include('partials/pet-details-modal') %>
+
+  <script>
+    const API_URL = '/api';
+    const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
+    const CLOUDINARY_PRESET = '<%= cloudinaryPreset || "unsigned_preset" %>';
+    let currentPackId = '<%= packId || "" %>';
+
+    // Set flag for pet details modal to show edit button
+    window.isListerView = true;
+    
+    // Map form values to database enum values
+    function mapAgeToDatabase(age) {
+      const ageMap = {
+        'PUPPY': 'less_than_8_months',
+        'YOUNG': 'one_to_3_years',
+        'ADULT': 'four_to_7_years',
+        'SENIOR': 'eight_plus_years'
+      };
+      return age ? (ageMap[age] || null) : null;
+    }
+    
+    function mapSizeToDatabase(size) {
+      const sizeMap = {
+        'SMALL': 'small',
+        'MEDIUM': 'medium',
+        'LARGE': 'large'
+      };
+      return size ? (sizeMap[size] || null) : null;
+    }
+    
+    function mapStatusToDatabase(status) {
+      const statusMap = {
+        'AVAILABLE': 'available',
+        'PENDING': 'reserved',
+        'ADOPTED': 'sold',
+        'WITHDRAWN': 'hidden'
+      };
+      return status ? (statusMap[status] || 'available') : 'available';
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Toggle single pet mode
+    function toggleSinglePet() {
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packNameInput = document.getElementById('pack-name');
+      const packDescInput = document.getElementById('pack-description');
+      
+      packNameInput.disabled = isSinglePet;
+      packDescInput.disabled = isSinglePet;
+      
+      if (isSinglePet) {
+        packNameInput.value = '';
+        packDescInput.value = '';
+      }
+    }
+
+    // Save pack details only
+    async function savePack() {
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packName = document.getElementById('pack-name').value.trim();
+      const packDescription = document.getElementById('pack-description').value.trim();
+      const packId = document.getElementById('pack-id').value;
+      
+      const data = {
+        name: packName || 'My Pet Listing',
+        description: isSinglePet ? '' : packDescription
+      };
+      
+      try {
+        const url = packId ? `${API_URL}/packs/${packId}` : `${API_URL}/packs`;
+        const method = packId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          const response = await res.json();
+          const savedPack = response.pack || response; // Handle both formats
+          showToast('✓ Pack saved successfully!', 'success');
+          setTimeout(() => window.location.href = '/dashboard', 1000);
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to save pack'), 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ Error saving pack', 'error');
+      }
+    }
+
+    // Confirm cancel action
+    function confirmCancel() {
+      return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
+    }
+
+    // Create or get pack ID (called before saving a pet)
+    async function ensurePackExists() {
+      const packId = document.getElementById('pack-id').value;
+      
+      // If pack already exists, return its ID
+      if (packId) {
+        return packId;
+      }
+      
+      // Create pack first
+      const isSinglePet = document.getElementById('pack-single-pet').checked;
+      const packName = document.getElementById('pack-name').value.trim();
+      const packDescription = document.getElementById('pack-description').value.trim();
+      
+      const data = {
+        name: packName || 'My Pet Listing',
+        description: isSinglePet ? '' : packDescription
+      };
+      
+      try {
+        const res = await fetch(`${API_URL}/packs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          const response = await res.json();
+          const savedPack = response.pack || response; // Handle both formats
+          currentPackId = savedPack.id;
+          document.getElementById('pack-id').value = savedPack.id;
+          window.history.pushState({}, '', '/create-pack?id=' + savedPack.id);
+          return savedPack.id;
+        } else {
+          const err = await res.json();
+          throw new Error(err.error || 'Failed to create pack');
+        }
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
+    }
+
+    // Save pet to database (called from pet edit modal via window function)
+    window.savePetToDatabase = async function(petData, petId) {
+      try {
+        // Ensure pack exists first
+        const packId = await ensurePackExists();
+        
+        // Prepare pet data with mapped enum values
+        const data = {
+          pack_id: packId,
+          name: petData.name,
+          breed: petData.breed || null,
+          age: mapAgeToDatabase(petData.age),
+          size: mapSizeToDatabase(petData.size),
+          status: mapStatusToDatabase(petData.status),
+          description: petData.description || null,
+          expiry_date: petData.expiry_date,
+          cloudinary_public_ids: petData.cloudinary_public_ids
+        };
+        
+        const url = petId ? `${API_URL}/pets/${petId}` : `${API_URL}/pets`;
+        const method = petId ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          showToast('✓ Pet saved successfully!', 'success');
+          setTimeout(() => location.reload(), 1000);
+          return true;
+        } else {
+          const err = await res.json();
+          showToast('✗ ' + (err.error || 'Failed to save pet'), 'error');
+          return false;
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('✗ ' + err.message, 'error');
+        return false;
+      }
+    };
+
+    // Proceed to checkout
+    async function proceedToCheckout() {
+      const packId = document.getElementById('pack-id').value;
+      
+      if (!packId) {
+        showToast('✗ Please create a pack and add at least one pet first', 'error');
+        return;
+      }
+      
+      // Redirect to checkout with pack ID
+      window.location.href = '/checkout?packId=' + packId;
+    }
+
+    // Open add pet modal
+    function openAddPetModal() {
+      window.openPetEditModal(null, 'new');
+    }
+
+    // Initialize single pet toggle on load
+    if (document.getElementById('pack-single-pet').checked) {
+      toggleSinglePet();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - DFW Dog Rehoming</title>
+  <link href="/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-bg-primary text-text-primary">
+  <%- include('partials/nav-bar', { user }) %>
+
+  <div class="max-w-3xl mx-auto p-4 md:p-8" id="checkout-content">
+    <a href="/dashboard" class="text-accent hover:underline inline-flex items-center gap-2 mb-6">← Back to Dashboard</a>
+    <div class="bg-gradient-to-r from-amber-400 to-amber-600 text-gray-900 text-center p-3 font-semibold flex items-center justify-center gap-2 rounded-lg mb-4"><span class="text-xl">⚠️</span> This is a demo checkout. No real payment will be processed.</div>
+    <div class="card overflow-hidden">
+      <div class="bg-bg-tertiary border-b border-border p-6 checkout-header"><h1 class="text-2xl font-semibold">Checkout</h1></div>
+      <div class="p-6">
+        <div id="dynamic-pets-list" class="space-y-3 mb-6"></div>
+
+        <div class="flex justify-between border-b border-border py-3 text-text-secondary"><span>Listing Fee <span id="pet-count-display"></span></span><span id="pet-fee-calc"></span></div>
+        <div class="flex justify-between py-4 text-xl font-semibold text-text-primary"><span>Total</span><span id="total-price">$0.00</span></div>
+
+        <div class="mt-6 p-6 bg-bg-tertiary rounded-lg">
+          <h3 class="font-semibold mb-4 text-text-primary">Pay with PayPal</h3>
+          <div id="paypal-button-container" class="min-h-[150px]"></div>
+        </div>
+
+        <button id="bypass-button" class="btn btn-primary w-full mt-4 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-accent text-white hover:bg-accent-hover" onclick="bypassPayment()">Bypass Payment (Demo)</button>
+        <div id="loading" class="hidden mt-4 text-text-secondary">Processing payment...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hidden bg-success/15 border border-success rounded-xl p-8 text-center" id="success-card">
+    <div class="text-5xl mb-4">🎉</div>
+    <h2 class="text-success m-0 mb-2">Payment Successful!</h2>
+    <p class="text-text-secondary">Your pets are now listed. You can view the receipt or return to the dashboard.</p>
+    <a class="btn btn-primary" href="/dashboard">Go to Dashboard</a>
+  </div>
+
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=<%= process.env.PAYPAL_CLIENT_ID || 'sb' %>&currency=USD&enable-funding=card"></script>
+  
+  <script>
+    const API_URL = '/api';
+    const LISTING_FEE = parseFloat('<%= process.env.PAYPAL_LISTING_FEE || "5.00" %>');
+    // Cloudinary cloud name (must be defined before tile population functions use it)
+    const CLOUDINARY_CLOUD = '<%= cloudinaryCloud || "" %>';
+    
+    // Load checkout data from sessionStorage
+    let checkoutData = null;
+    try {
+      const stored = sessionStorage.getItem('checkoutData');
+      if (stored) {
+        checkoutData = JSON.parse(stored);
+      }
+    } catch (err) {
+      console.error('Failed to load checkout data:', err);
+    }
+    
+    // Use server-provided data if available, otherwise use sessionStorage
+    const packId = '<%= typeof packId !== "undefined" ? packId : "" %>' || (checkoutData ? checkoutData.packId : null);
+    const packName = '<%= typeof packName !== "undefined" && packName ? packName : "" %>';
+    let petIds = <%- typeof petIds !== 'undefined' ? JSON.stringify(petIds) : '[]' %>;
+    const serverUnpaidPets = <%- typeof unpaidPetsJson !== 'undefined' ? unpaidPetsJson : '[]' %>;
+    const serverPets = <%- typeof pets !== 'undefined' ? JSON.stringify(pets) : '[]' %>;
+
+    // Decide which pets to display/pay for
+    let newDogs = [];
+    if (checkoutData && checkoutData.dogs && checkoutData.dogs.length > 0) {
+      newDogs = checkoutData.dogs; // Newly staged pets prior to creation
+    } else if (petIds.length > 0 && serverPets.length > 0) {
+      newDogs = serverPets; // Explicit petIds passed
+    } else if (serverUnpaidPets.length > 0) {
+      newDogs = serverUnpaidPets; // Unpaid pets in selected pack
+    }
+
+    // Update header if showing unpaid pack pets directly
+    if (packName && newDogs.length > 0 && !checkoutData) {
+      const headerEl = document.querySelector('.checkout-header h1');
+      if (headerEl) headerEl.textContent = `Checkout – ${packName}`;
+    }
+
+    // Populate the pets list dynamically
+    function populatePetsList() {
+      const petsList = document.getElementById('dynamic-pets-list');
+      const petsToShow = newDogs.length > 0 ? newDogs : [];
+      const petCount = petsToShow.length;
+
+      if (petsToShow.length > 0) {
+        petsList.innerHTML = petsToShow.map(dog => {
+          const age = dog.age ? String(dog.age).toLowerCase().replace(/_/g,' ') : '';
+          const size = dog.size ? String(dog.size).toLowerCase().replace(/_/g,' ') : '';
+          const breed = dog.breed || '';
+          const animalType = dog.animal_type || '';
+          const photoUrl = dog.cloudinary_public_ids && dog.cloudinary_public_ids.length > 0
+            ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/c_fill,w_80,h_60,g_auto/${dog.cloudinary_public_ids[0]}.jpg`
+            : null;
+          
+          const tags = [animalType, breed, age, size].filter(Boolean);
+          
+          return `
+            <div class="flex gap-3 p-3 bg-bg-tertiary rounded-lg items-center">
+              ${photoUrl 
+                ? `<img src="${photoUrl}" alt="${dog.name || 'Pet'}" class="w-20 aspect-[4/3] object-cover rounded-md flex-shrink-0" />`
+                : `<div class="w-20 aspect-[4/3] bg-bg-hover rounded-md flex items-center justify-center text-3xl flex-shrink-0">🐕</div>`}
+              <div class="flex-1 min-w-0">
+                <h3 class="text-text-primary font-semibold m-0 mb-2">${dog.name || 'Unnamed Pet'}</h3>
+                ${tags.length > 0 ? `
+                <div class="flex gap-2 flex-wrap">
+                  ${tags.map(tag => `<span class="inline-block px-2.5 py-1 bg-bg-primary rounded-full text-xs text-text-secondary capitalize">${tag}</span>`).join('')}
+                </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        petsList.innerHTML = '';
+      }
+
+      // Update pricing
+      const total = LISTING_FEE * petCount;
+      document.getElementById('pet-count-display').textContent = petCount > 0 ? `(${petCount} pet${petCount !== 1 ? 's' : ''})` : '';
+      document.getElementById('pet-fee-calc').textContent = petCount > 0 ? `$${LISTING_FEE.toFixed(2)} × ${petCount}` : '$0.00';
+      document.getElementById('total-price').textContent = `$${total.toFixed(2)}`;
+    }
+    
+    
+    // Bypass PayPal for testing
+    async function bypassPayment() {
+      if (!confirm('Skip PayPal and create a test receipt? (For testing only)')) return;
+      
+      document.getElementById('loading').classList.add('show');
+      
+      try {
+        // Create a dummy receipt
+        const dummyReceipt = {
+          paypal_order_id: 'TEST-' + Date.now(),
+          amount: LISTING_FEE * newDogs.length,
+          currency: 'USD',
+          status: 'completed'
+        };
+        
+        // Link pets to dummy receipt
+        const response = await fetch(`${API_URL}/checkout/bypass-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            packId: packId,
+            petIds: (Array.isArray(petIds) && petIds.length > 0) ? petIds : newDogs.map(d => d.id).filter(Boolean),
+            receipt: dummyReceipt
+          })
+        });
+        
+        const result = await response.json();
+        
+        document.getElementById('loading').classList.remove('show');
+        
+        if (result.success) {
+          sessionStorage.removeItem('checkoutData');
+          document.getElementById('checkout-content').style.display = 'none';
+          document.getElementById('success-card').classList.add('show');
+        } else {
+          alert('Bypass failed: ' + (result.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Bypass error:', err);
+        document.getElementById('loading').classList.remove('show');
+        alert('Bypass failed: ' + err.message);
+      }
+    }
+    
+    // Populate on page load (after CLOUDINARY_CLOUD defined)
+    populatePetsList();
+    
+    paypal.Buttons({
+      style: {
+        layout: 'vertical',
+        color: 'blue',
+        shape: 'rect',
+        label: 'paypal'
+      },
+      
+      createOrder: async function(data, actions) {
+        try {
+          const response = await fetch(`${API_URL}/paypal/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              petIds: (Array.isArray(petIds) && petIds.length > 0) ? petIds : newDogs.map(d => d.id).filter(Boolean),
+              packId: packId,
+              petCount: newDogs.length || petIds.length || 1
+            })
+          });
+          const order = await response.json();
+          if (order.orderId) {
+            return order.orderId;
+          } else {
+            throw new Error(order.error || 'Failed to create order');
+          }
+        } catch (err) {
+          console.error('Order creation error:', err);
+          throw err;
+        }
+      },
+      
+      onApprove: async function(data, actions) {
+        document.getElementById('loading').classList.add('show');
+        
+        try {
+          // If we have new pack/dogs from sessionStorage, create them first
+          if (checkoutData && !checkoutData.packId) {
+            console.log('Creating new pack and dogs:', checkoutData);
+            
+            // Create pack and dogs
+            const saveResponse = await fetch(`${API_URL}/checkout/save-listing`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                orderId: data.orderID,
+                packName: checkoutData.packName,
+                packDescription: checkoutData.packDescription,
+                dogs: checkoutData.dogs
+              })
+            });
+            
+            const saveResult = await saveResponse.json();
+            console.log('Save listing response:', saveResult);
+            
+            if (!saveResponse.ok || !saveResult.success) {
+              throw new Error(saveResult.error || 'Failed to save listing');
+            }
+            
+            // Clear sessionStorage after successful save
+            sessionStorage.removeItem('checkoutData');
+            
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('checkout-content').style.display = 'none';
+            document.getElementById('success-card').classList.add('show');
+          } else {
+            console.log('Processing payment for existing pack/pets');
+            
+            // Existing flow: just capture payment for existing pets
+            const response = await fetch(`${API_URL}/paypal/capture-order`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                orderId: data.orderID,
+                petIds: petIds,
+                packId: packId
+              })
+            });
+            
+            const result = await response.json();
+            console.log('Capture order response:', result);
+            document.getElementById('loading').classList.remove('show');
+            
+            if (result.success) {
+              document.getElementById('checkout-content').style.display = 'none';
+              document.getElementById('success-card').classList.add('show');
+            } else {
+              alert('Payment failed: ' + (result.error || 'Unknown error'));
+            }
+          }
+        } catch (err) {
+          console.error('Payment capture error:', err);
+          document.getElementById('loading').classList.remove('show');
+          alert('Payment processing failed: ' + err.message);
+        }
+      },
+      
+      onError: function(err) {
+        console.error('PayPal error:', err);
+        alert('Payment error. Please try again.');
+      },
+      
+      onCancel: function(data) {
+        console.log('Payment cancelled');
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>

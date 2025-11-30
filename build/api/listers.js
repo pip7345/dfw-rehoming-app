@@ -1,0 +1,65 @@
+import { Router } from 'express';
+import { ListersRepo } from '../core/listersRepo.js';
+import { PacksRepo } from '../core/packsRepo.js';
+const router = Router();
+// Get current user's lister profile (authenticated)
+router.get('/me', async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ ok: false, error: 'Not authenticated' });
+    }
+    try {
+        const lister = await ListersRepo.getOrCreate(user.id);
+        const packs = await PacksRepo.findByListerId(lister.id);
+        res.json({ ok: true, lister, packs });
+    }
+    catch (error) {
+        res.status(500).json({ ok: false, error: error.message });
+    }
+});
+// Update contact preferences (authenticated)
+router.put('/me/contact', async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ ok: false, error: 'Not authenticated' });
+    }
+    try {
+        const { phone, email, show_email, show_phone } = req.body;
+        const lister = await ListersRepo.getOrCreate(user.id);
+        const updated = await ListersRepo.updateContactPreferences(lister.id, {
+            phone,
+            email,
+            show_email,
+            show_phone
+        });
+        res.json({ ok: true, lister: updated });
+    }
+    catch (error) {
+        res.status(500).json({ ok: false, error: error.message });
+    }
+});
+// Get lister by ID (public - for viewing listing contact info)
+router.get('/:id', async (req, res) => {
+    try {
+        const lister = await ListersRepo.findById(req.params.id);
+        if (!lister) {
+            return res.status(404).json({ ok: false, error: 'Lister not found' });
+        }
+        // Extract contact_preferences from JSON field
+        const prefs = lister.contact_preferences || {};
+        // Only return public contact info
+        const publicLister = {
+            id: lister.id,
+            show_email: prefs.show_email,
+            show_phone: prefs.show_phone,
+            email: prefs.show_email ? prefs.email : null,
+            phone: prefs.show_phone ? prefs.phone : null,
+            location: lister.location
+        };
+        res.json({ ok: true, lister: publicLister });
+    }
+    catch (error) {
+        res.status(500).json({ ok: false, error: error.message });
+    }
+});
+export default router;

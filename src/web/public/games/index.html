@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Trader - Buy Your Dream Planet!</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🚀 Space Trader</h1>
+    <p class="objective">Objective: Earn 1,000,000 credits to buy your dream planet.</p>
+  </header>
+  <main id="game-root">
+    <section id="stats" class="panel stats"></section>
+    <div class="columns">
+      <section id="market" class="panel">
+        <h2>🛒 Market</h2>
+        <div id="market-planet"></div>
+        <ul id="market-list" class="click-list" aria-label="Market prices"></ul>
+      </section>
+      <section id="cargo" class="panel">
+        <h2>📦 Your Cargo</h2>
+        <ul id="cargo-list" class="click-list" aria-label="Cargo hold"></ul>
+      </section>
+    </div>
+    <section id="trade" class="panel trade">
+      <div class="trade-row">
+        <div class="selected">
+          <label>Selected:</label>
+          <span id="selected-mineral" class="value">(none)</span>
+        </div>
+        <div class="quantity">
+          <label for="quantity-input">Quantity:</label>
+          <input id="quantity-input" type="number" min="1" value="1" />
+        </div>
+        <div class="total-cost">
+          <label>Total Cost:</label>
+          <span id="total-cost" class="value">0 credits</span>
+        </div>
+      </div>
+      <div class="buttons">
+        <button id="buy-btn" disabled>💰 BUY</button>
+        <button id="sell-btn" disabled>💸 SELL</button>
+        <button id="travel-btn">🚀 TRAVEL</button>
+        <button id="pub-btn">🍺 PUB (50cr)</button>
+        <button id="fuel-btn">⛽ BUY FUEL</button>
+        <button id="planet-btn">🌍 BUY PLANET</button>
+        <button id="restart-btn">🔄 RESTART</button>
+      </div>
+    </section>
+    <section id="log" class="panel log">
+      <h2>📜 Activity Log</h2>
+      <div id="log-messages"></div>
+    </section>
+  </main>
+
+  <!-- Travel Modal -->
+  <div id="travel-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="travel-title">
+    <div class="modal-content">
+      <h2 id="travel-title">Select Destination</h2>
+      <p class="fuel-note">Fuel cost per trip: <span id="fuel-cost"></span></p>
+      <div id="travel-options" class="travel-options"></div>
+      <button id="close-travel" class="close-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Simple Prompt Modal (for fuel purchase) -->
+  <div id="prompt-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="prompt-title">
+    <div class="modal-content small">
+      <h2 id="prompt-title">Buy Fuel</h2>
+      <p id="prompt-text"></p>
+      <input type="number" id="prompt-input" min="1" value="10" />
+      <div class="prompt-buttons">
+        <button id="prompt-ok">OK</button>
+        <button id="prompt-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="space_trader_web.js"></script>
+</body>
+</html>

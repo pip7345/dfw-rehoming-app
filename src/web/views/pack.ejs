@@ -112,42 +112,24 @@
                     <span class="text-2xl font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
                   </div>
                   
-                  <div class="pet-detail-grid pet-detail-grid-two-col mb-4">
-                    <% if (pet.breed) { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Breed</span>
-                        <span class="pet-detail-value"><%= pet.breed %></span>
-                      </div>
-                    <% } %>
+                  <% if (pet.breed) { %>
+                    <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
+                  <% } %>
+                  <div class="flex gap-2 flex-wrap mb-4">
                     <% if (pet.animal_type) { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Type</span>
-                        <span class="pet-detail-value"><%= pet.animal_type %></span>
-                      </div>
+                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
                     <% } %>
                     <% if (pet.age) { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Age</span>
-                        <span class="pet-detail-value"><%= pet.age.replace(/_/g, ' ') %></span>
-                      </div>
+                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
                     <% } %>
                     <% if (pet.size) { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Size</span>
-                        <span class="pet-detail-value"><%= pet.size %></span>
-                      </div>
+                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
                     <% } %>
                     <% if (pet.gender && pet.gender !== 'unspecified') { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Gender</span>
-                        <span class="pet-detail-value"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
-                      </div>
+                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
                     <% } %>
                     <% if (pet.status) { %>
-                      <div class="pet-detail-info-item">
-                        <span class="pet-detail-label">Status</span>
-                        <span class="pet-detail-value"><%= pet.status %></span>
-                      </div>
+                      <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
                     <% } %>
                   </div>
                   
@@ -180,42 +162,24 @@
                       <span class="text-xl font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
                     </div>
                     
-                    <div class="pet-detail-grid mb-4">
-                      <% if (pet.breed) { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Breed</span>
-                          <span class="pet-detail-value"><%= pet.breed %></span>
-                        </div>
-                      <% } %>
+                    <% if (pet.breed) { %>
+                      <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
+                    <% } %>
+                    <div class="flex gap-2 flex-wrap mb-4">
                       <% if (pet.animal_type) { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Type</span>
-                          <span class="pet-detail-value"><%= pet.animal_type %></span>
-                        </div>
+                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
                       <% } %>
                       <% if (pet.age) { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Age</span>
-                          <span class="pet-detail-value"><%= pet.age.replace(/_/g, ' ') %></span>
-                        </div>
+                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
                       <% } %>
                       <% if (pet.size) { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Size</span>
-                          <span class="pet-detail-value"><%= pet.size %></span>
-                        </div>
+                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
                       <% } %>
                       <% if (pet.gender && pet.gender !== 'unspecified') { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Gender</span>
-                          <span class="pet-detail-value"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
-                        </div>
+                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
                       <% } %>
                       <% if (pet.status) { %>
-                        <div class="pet-detail-info-item">
-                          <span class="pet-detail-label">Status</span>
-                          <span class="pet-detail-value"><%= pet.status %></span>
-                        </div>
+                        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
                       <% } %>
                     </div>
                     

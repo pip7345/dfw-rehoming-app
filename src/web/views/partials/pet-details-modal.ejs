@@ -69,33 +69,23 @@
           </div>
           
           <div class="pet-info-item">
-            <span class="pet-info-label">Rehoming Fee</span>
-            <span class="pet-info-value" style="color: var(--success); font-weight: 600; font-size: 1.25rem;">$${pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50'}</span>
-          </div>
-          
-          <div class="pet-info-item">
-            <span class="pet-info-label">Type</span>
-            <span class="pet-info-value">${pet.animal_type ? pet.animal_type.charAt(0).toUpperCase() + pet.animal_type.slice(1) : 'Dog'}</span>
-          </div>
-          
-          <div class="pet-info-item">
             <span class="pet-info-label">Breed</span>
             <span class="pet-info-value">${pet.breed || 'Unknown'}</span>
           </div>
           
           <div class="pet-info-item">
-            <span class="pet-info-label">Age</span>
-            <span class="pet-info-value">${pet.age ? formatAge(pet.age) : 'Unknown'}</span>
+            <span class="pet-info-label">Rehoming Fee</span>
+            <span class="pet-info-value" style="color: var(--success); font-weight: 600; font-size: 1.25rem;">$${pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50'}</span>
           </div>
           
-          <div class="pet-info-item">
-            <span class="pet-info-label">Size</span>
-            <span class="pet-info-value">${pet.size ? formatSize(pet.size) : 'Unknown'}</span>
-          </div>
-          
-          <div class="pet-info-item">
-            <span class="pet-info-label">Status</span>
-            <span class="pet-info-value">${pet.status || 'Available'}</span>
+          <div class="pet-info-item" style="grid-column: 1 / -1;">
+            <span class="pet-info-label">Tags</span>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              ${pet.animal_type ? `<span style="display: inline-block; padding: 0.25rem 0.625rem; background: var(--bg-tertiary); border-radius: 9999px; font-size: 0.75rem; color: var(--text-secondary); text-transform: capitalize;">${pet.animal_type}</span>` : ''}
+              ${pet.age ? `<span style="display: inline-block; padding: 0.25rem 0.625rem; background: var(--bg-tertiary); border-radius: 9999px; font-size: 0.75rem; color: var(--text-secondary); text-transform: capitalize;">${formatAge(pet.age)}</span>` : ''}
+              ${pet.size ? `<span style="display: inline-block; padding: 0.25rem 0.625rem; background: var(--bg-tertiary); border-radius: 9999px; font-size: 0.75rem; color: var(--text-secondary); text-transform: capitalize;">${formatSize(pet.size)}</span>` : ''}
+              ${pet.status ? `<span style="display: inline-block; padding: 0.25rem 0.625rem; background: rgba(var(--accent-rgb), 0.2); color: var(--accent-light); border-radius: 9999px; font-size: 0.75rem; font-weight: 500; text-transform: capitalize;">${pet.status}</span>` : ''}
+            </div>
           </div>
           
           <div class="pet-info-item">

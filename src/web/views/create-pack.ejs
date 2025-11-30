@@ -308,7 +308,7 @@
     const CLOUDINARY_PRESET = '<%= cloudinaryPreset || "unsigned_preset" %>';
     const CLOUDINARY_PAD_RGB = '<%= cloudinaryPadRgb || "d1d5db" %>';
     let currentPackId = '<%= packId || "" %>';
-    let packGalleryPhotos = <%= JSON.stringify((typeof packCloudinaryIds !== 'undefined' && packCloudinaryIds) ? packCloudinaryIds : []) %>;
+    let packGalleryPhotos = <%- JSON.stringify((typeof packCloudinaryIds !== 'undefined' && packCloudinaryIds) ? packCloudinaryIds : []) %>;
 
     // Set flag for pet details modal to show edit button
     window.isListerView = true;

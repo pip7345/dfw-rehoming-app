@@ -319,6 +319,11 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Game route
+router.get('/games/space_trader', (req, res) => {
+  res.sendFile('games/index.html', { root: './src/web/public' });
+});
+
 router.post('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);

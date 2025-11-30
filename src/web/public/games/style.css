@@ -1,0 +1,49 @@
+* { box-sizing: border-box; }
+body { font-family: system-ui, Arial, sans-serif; margin:0; background:#0a0e27; color:#d9e8ff; }
+header { background:#16213e; padding:1rem 1.5rem; border-bottom:2px solid #23395d; }
+header h1 { margin:0 0 .25rem; font-size:1.9rem; color:#00d9ff; }
+.objective { margin:0; font-size:.9rem; color:#7bb4d9; }
+main { max-width:1200px; margin:0 auto; padding:1rem; }
+.columns { display:flex; gap:1rem; flex-wrap:wrap; }
+.panel { background:#1a1a3e; padding:1rem; border:2px solid #23395d; border-radius:8px; flex:1; min-width:320px; }
+.panel h2 { margin-top:0; color:#00d9ff; font-size:1.1rem; }
+#stats { font-family: "Courier New", Courier, monospace; line-height:1.4; background:#101631; }
+.click-list { list-style:none; margin:0; padding:0; max-height:320px; overflow-y:auto; }
+.click-list li { padding:.4rem .6rem; border-bottom:1px solid #23395d; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.click-list li:hover { background:#25325a; }
+.click-list li.selected { background:#394b7c; }
+.value { font-weight:bold; }
+.trade { margin-top:1rem; }
+.trade-row { display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end; }
+.trade-row > div { flex:1 1 160px; }
+.quantity input { width:100%; padding:.4rem; background:#0f1626; color:#b4a7d6; border:1px solid #23395d; border-radius:4px; }
+.buttons { margin-top:1rem; display:flex; flex-wrap:wrap; gap:.5rem; }
+.buttons button { flex:1 1 150px; padding:.6rem .5rem; border:none; border-radius:6px; font-weight:bold; cursor:pointer; background:#23395d; color:#fff; letter-spacing:.5px; }
+.buttons button:hover { filter:brightness(1.15); }
+#buy-btn { background:#00a86b; }
+#sell-btn { background:#8b00ff; }
+#travel-btn { background:#0066cc; }
+#pub-btn { background:#7b2cbf; }
+#fuel-btn { background:#ff6b35; }
+#planet-btn { background:#ffd60a; color:#0a0e27; }
+#restart-btn { background:#5552d9; }
+.log { margin-top:1rem; }
+#log-messages { max-height:220px; overflow-y:auto; font-family:"Courier New", monospace; font-size:.85rem; background:#0f1626; padding:.5rem .75rem; border-radius:6px; }
+#log-messages .entry { margin:0 0 .35rem; }
+.progress-bar { background:#23395d; height:14px; border-radius:7px; overflow:hidden; margin-top:.4rem; }
+.progress-bar span { display:block; height:100%; background:linear-gradient(90deg,#00d9ff,#7b2cbf); }
+.modal { position:fixed; inset:0; background:rgba(0,0,20,.7); display:flex; align-items:center; justify-content:center; z-index:50; }
+.modal.hidden { display:none; }
+.modal-content { background:#101631; padding:1rem 1.25rem; border:2px solid #23395d; border-radius:10px; width:560px; max-height:80vh; overflow-y:auto; }
+.modal-content.small { width:360px; }
+.travel-options { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+.travel-card { background:#1a1a3e; padding:.75rem .85rem; border:1px solid #23395d; border-radius:8px; cursor:pointer; display:flex; flex-direction:column; gap:.4rem; }
+.travel-card:hover { background:#25325a; }
+.travel-card h3 { margin:.1rem 0 .2rem; font-size:1rem; color:#ffd60a; }
+.close-btn, .prompt-buttons button { background:#23395d; color:#fff; border:none; padding:.5rem .9rem; border-radius:6px; cursor:pointer; font-weight:bold; }
+.close-btn:hover, .prompt-buttons button:hover { filter:brightness(1.15); }
+.fuel-note { font-size:.85rem; color:#7bb4d9; }
+#prompt-input { width:100%; padding:.45rem; background:#0f1626; color:#b4a7d6; border:1px solid #23395d; border-radius:6px; margin:.5rem 0 0; }
+.reputation { margin-top:.4rem; font-size:.75rem; color:#7bb4d9; }
+footer { text-align:center; padding:2rem 0; font-size:.7rem; color:#4e5d7a; }
+@media (max-width:900px){ .columns{flex-direction:column;} .buttons button{flex:1 1 45%;} }

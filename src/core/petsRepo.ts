@@ -248,7 +248,7 @@ export const PetsRepo = {
         breed: data.breed,
         size: data.size,
         gender: data.gender || 'male',
-        rehoming_fee: data.rehoming_fee ?? 50,
+        rehoming_fee: data.rehoming_fee !== undefined && data.rehoming_fee !== null ? data.rehoming_fee : 50,
         status: data.status || 'available',
         custom_availability_date: data.custom_availability_date,
         expiry_date: data.expiry_date,

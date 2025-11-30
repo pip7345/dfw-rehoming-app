@@ -689,4 +689,75 @@
   .receipt-info a {
     @apply text-accent no-underline hover:underline;
   }
+
+  /* Lightbox styles */
+  .lightbox {
+    @apply hidden fixed top-0 left-0 w-full h-full bg-black/90 z-[1000] justify-center items-center;
+  }
+  
+  .lightbox.active {
+    @apply flex;
+  }
+  
+  .lightbox img {
+    @apply max-w-[90%] max-h-[90%] object-contain;
+  }
+  
+  .lightbox-close {
+    @apply absolute top-5 right-8 text-white text-3xl cursor-pointer;
+  }
+  
+  .lightbox-nav {
+    @apply absolute top-1/2 -translate-y-1/2 text-white text-5xl cursor-pointer p-4 select-none;
+  }
+  
+  .lightbox-prev {
+    @apply left-5;
+  }
+  
+  .lightbox-next {
+    @apply right-5;
+  }
+
+  /* Lister sidebar styles */
+  .lister-sidebar-toggle {
+    @apply flex items-center justify-between cursor-pointer py-4 border-b-2 border-border mb-4 text-xl font-semibold text-text-primary;
+  }
+  
+  .lister-sidebar-toggle:hover {
+    @apply text-accent;
+  }
+  
+  .lister-sidebar-content {
+    @apply max-h-0 overflow-hidden transition-[max-height] duration-300 ease-in-out;
+  }
+  
+  .lister-sidebar-content.open {
+    @apply max-h-[1000px];
+  }
+
+  /* Pet detail card styles */
+  .pet-detail-card {
+    @apply bg-bg-secondary border border-border rounded-xl overflow-hidden;
+  }
+  
+  .pet-detail-grid {
+    @apply grid gap-4 p-6;
+  }
+  
+  .pet-detail-grid-two-col {
+    @apply sm:grid-cols-2;
+  }
+  
+  .pet-detail-info-item {
+    @apply flex flex-col gap-1;
+  }
+  
+  .pet-detail-label {
+    @apply text-sm text-text-muted font-medium;
+  }
+  
+  .pet-detail-value {
+    @apply text-base text-text-primary;
+  }
 }

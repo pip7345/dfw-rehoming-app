@@ -33,15 +33,11 @@
         <div class="pet-tile-placeholder"><%= typeEmoji %></div>
       <% } %>
       
-      <!-- Status Overlays -->
+      <!-- Status Badges (small tag, top-right) -->
       <% if (isSold) { %>
-        <div class="pet-tile-overlay pet-tile-overlay-sold">
-          <span class="pet-tile-status-text">SOLD</span>
-        </div>
+        <div class="pet-tile-badge bg-danger/90 text-white" style="padding:5px;">Adopted</div>
       <% } else if (isReserved) { %>
-        <div class="pet-tile-overlay pet-tile-overlay-reserved">
-          <span class="pet-tile-status-text">RESERVED</span>
-        </div>
+        <div class="pet-tile-badge bg-warning/90 text-white" style="padding:5px;">Pending</div>
       <% } %>
       
       <% if (isHidden && isLister) { %>

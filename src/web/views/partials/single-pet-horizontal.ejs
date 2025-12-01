@@ -1,0 +1,62 @@
+<%
+  const isSold = pet.status === 'adopted' || pet.status === 'sold';
+  const isReserved = pet.status === 'pending' || pet.status === 'reserved';
+  const displayStatus = isSold ? 'adopted' : (isReserved ? 'pending' : pet.status);
+%>
+
+<div class="pet-detail-card mb-6">
+  <div class="flex flex-col md:flex-row">
+    <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
+      <div class="md:w-1/2 lg:w-2/5 relative">
+        <img 
+          src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_800,h_600/<%= pet.cloudinary_public_ids[0] %>.jpg" 
+          alt="<%= pet.name || 'Pet' %>" 
+          class="w-full aspect-[4/3] object-cover bg-bg-tertiary" 
+        />
+        <% if (isSold) { %>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="rounded-md font-semibold bg-danger/90 text-white text-2xl md:text-3xl" style="padding:15px;">Adopted</span>
+          </div>
+        <% } else if (isReserved) { %>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="rounded-md font-semibold bg-warning/90 text-white text-2xl md:text-3xl" style="padding:15px;">Pending</span>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <div class="flex-1 p-6">
+      <div class="flex items-start justify-between mb-4">
+        <h2 class="text-2xl font-bold text-text-primary m-0"><%= pet.name || 'Unnamed Pet' %></h2>
+        <span class="text-2xl font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
+      </div>
+
+      <% if (pet.breed) { %>
+        <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
+      <% } %>
+      <div class="flex gap-2 flex-wrap mb-4">
+        <% if (pet.animal_type) { %>
+          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
+        <% } %>
+        <% if (pet.age) { %>
+          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
+        <% } %>
+        <% if (pet.size) { %>
+          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
+        <% } %>
+        <% if (pet.gender && pet.gender !== 'unspecified') { %>
+          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
+        <% } %>
+        <% if (displayStatus) { %>
+          <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= displayStatus %></span>
+        <% } %>
+      </div>
+
+      <% if (pet.description) { %>
+        <div class="mt-4">
+          <p class="text-text-secondary leading-relaxed whitespace-pre-line"><%= pet.description %></p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

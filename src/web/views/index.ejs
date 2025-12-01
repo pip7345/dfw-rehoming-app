@@ -79,6 +79,10 @@
             step="1"
             value="<%= typeof filters !== 'undefined' && filters.max_price ? filters.max_price : '' %>"
           />
+          <label class="inline-flex items-center gap-2 text-sm text-text-secondary mt-2 lg:mt-0">
+            <input type="checkbox" name="show_reserved" value="1" <%= typeof filters !== 'undefined' && filters.show_reserved === '1' ? 'checked' : '' %> />
+            <span>Show Pending</span>
+          </label>
         </div>
       </div>
     </form>

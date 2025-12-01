@@ -112,7 +112,7 @@ export const PetsRepo = {
         // Exclude sold and reserved pets from public view
         where.AND.push({
             status: {
-                notIn: ['sold', 'reserved']
+                notIn: ['sold']
             }
         });
         // Exclude expired unless requested

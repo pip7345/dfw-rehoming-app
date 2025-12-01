@@ -52,6 +52,7 @@ export interface SearchPetsParams {
   maxPrice?: number;
   includeHidden?: boolean;
   includeExpired?: boolean;
+  includeReserved?: boolean; // when true, include reserved pets in results
   sortBy?: 'newest' | 'oldest' | 'expiring' | 'price_low' | 'price_high';
   limit?: number;
   offset?: number;
@@ -84,6 +85,7 @@ export const PetsRepo = {
       maxPrice,
       includeHidden = false,
       includeExpired = false,
+      includeReserved = false,
       sortBy = 'newest',
       limit = 50,
       offset = 0
@@ -197,12 +199,10 @@ export const PetsRepo = {
       where.AND.push({ status: { not: 'hidden' } });
     }
 
-    // Exclude sold and reserved pets from public view
-    where.AND.push({ 
-      status: { 
-        notIn: ['sold', 'reserved'] 
-      } 
-    });
+    // Exclude sold always; conditionally exclude reserved unless included
+    const excludedStatuses: PetStatus[] = ['sold'];
+    if (!includeReserved) excludedStatuses.push('reserved');
+    where.AND.push({ status: { notIn: excludedStatuses } });
 
     // Exclude expired unless requested
     if (!includeExpired) {

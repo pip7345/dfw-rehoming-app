@@ -25,7 +25,7 @@ router.get('/register', (req, res) => {
 // Homepage with pet search
 router.get('/', async (req, res) => {
   try {
-    const { q: query, animal_type, age, size, gender, min_price, max_price } = req.query;
+    const { q: query, animal_type, age, size, gender, min_price, max_price, show_reserved } = req.query;
 
     const pets = await PetsRepo.search({
       query: query as string,
@@ -37,6 +37,7 @@ router.get('/', async (req, res) => {
       maxPrice: max_price ? parseFloat(max_price as string) : undefined,
       includeHidden: false,
       includeExpired: false,
+      includeReserved: !!show_reserved && (show_reserved === '1' || show_reserved === 'on' || show_reserved === 'true'),
       sortBy: 'newest',
       limit: 50
     });
@@ -51,7 +52,8 @@ router.get('/', async (req, res) => {
         size: size || '',
         gender: gender || '',
         min_price: min_price || '',
-        max_price: max_price || ''
+        max_price: max_price || '',
+        show_reserved: (!!show_reserved && (show_reserved === '1' || show_reserved === 'on' || show_reserved === 'true')) ? '1' : ''
       },
       cloudinaryCloud: CLOUDINARY_CLOUD,
       cloudinaryPadRgb: CLOUDINARY_PAD_RGB

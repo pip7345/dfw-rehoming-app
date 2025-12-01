@@ -90,104 +90,14 @@
         
         <% if (pets.length > 0) { %>
           <% if (isSinglePet) { %>
-            <!-- Single Pet Layout: Horizontal on Desktop -->
             <% const pet = pets[0]; %>
-            <div class="pet-detail-card mb-6">
-              <div class="flex flex-col md:flex-row">
-                <!-- Photo -->
-                <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
-                  <div class="md:w-1/2 lg:w-2/5">
-                    <img 
-                      src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_800,h_600/<%= pet.cloudinary_public_ids[0] %>.jpg" 
-                      alt="<%= pet.name || 'Pet' %>" 
-                      class="w-full aspect-[4/3] object-cover bg-bg-tertiary" 
-                    />
-                  </div>
-                <% } %>
-                
-                <!-- Details -->
-                <div class="flex-1 p-6">
-                  <div class="flex items-start justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-text-primary m-0"><%= pet.name || 'Unnamed Pet' %></h2>
-                    <span class="text-2xl font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
-                  </div>
-                  
-                  <% if (pet.breed) { %>
-                    <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
-                  <% } %>
-                  <div class="flex gap-2 flex-wrap mb-4">
-                    <% if (pet.animal_type) { %>
-                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
-                    <% } %>
-                    <% if (pet.age) { %>
-                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
-                    <% } %>
-                    <% if (pet.size) { %>
-                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
-                    <% } %>
-                    <% if (pet.gender && pet.gender !== 'unspecified') { %>
-                      <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
-                    <% } %>
-                    <% if (pet.status) { %>
-                      <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
-                    <% } %>
-                  </div>
-                  
-                  <% if (pet.description) { %>
-                    <div class="mt-4">
-                      <p class="text-text-secondary leading-relaxed whitespace-pre-line"><%= pet.description %></p>
-                    </div>
-                  <% } %>
-                </div>
-              </div>
+            <div class="mb-6">
+              <%- include('partials/single-pet-horizontal', { pet, cloudinaryCloud, cloudinaryPadRgb }) %>
             </div>
           <% } else { %>
-            <!-- Multiple Pets: Grid Layout -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
               <% pets.forEach(pet => { %>
-                <div class="pet-detail-card">
-                  <% if (pet.cloudinary_public_ids && pet.cloudinary_public_ids.length > 0) { %>
-                    <img 
-                      src="https://res.cloudinary.com/<%= cloudinaryCloud %>/image/upload/c_pad,b_rgb:<%= cloudinaryPadRgb %>,w_800,h_600/<%= pet.cloudinary_public_ids[0] %>.jpg" 
-                      alt="<%= pet.name || 'Pet' %>" 
-                      class="w-full aspect-[4/3] object-cover bg-bg-tertiary" 
-                    />
-                  <% } else { %>
-                    <div class="w-full aspect-[4/3] bg-bg-tertiary"></div>
-                  <% } %>
-                  
-                  <div class="p-6">
-                    <div class="flex items-start justify-between mb-4">
-                      <h2 class="text-xl font-bold text-text-primary m-0"><%= pet.name || 'Unnamed Pet' %></h2>
-                      <span class="text-xl font-bold text-success">$<%= pet.rehoming_fee != null ? Number(pet.rehoming_fee).toFixed(0) : '50' %></span>
-                    </div>
-                    
-                    <% if (pet.breed) { %>
-                      <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
-                    <% } %>
-                    <div class="flex gap-2 flex-wrap mb-4">
-                      <% if (pet.animal_type) { %>
-                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
-                      <% } %>
-                      <% if (pet.age) { %>
-                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
-                      <% } %>
-                      <% if (pet.size) { %>
-                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
-                      <% } %>
-                      <% if (pet.gender && pet.gender !== 'unspecified') { %>
-                        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
-                      <% } %>
-                      <% if (pet.status) { %>
-                        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
-                      <% } %>
-                    </div>
-                    
-                    <% if (pet.description) { %>
-                      <p class="text-text-secondary leading-relaxed whitespace-pre-line"><%= pet.description %></p>
-                    <% } %>
-                  </div>
-                </div>
+                <%- include('partials/pet-details-tile', { pet, cloudinaryCloud, cloudinaryPadRgb, isLister: false, showEditButton: false }) %>
               <% }); %>
             </div>
           <% } %>

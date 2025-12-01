@@ -85,7 +85,12 @@
           <span class="pet-tile-tag" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 500;">⚠️ Payment Pending</span>
         <% } %>
         <% if (pet.status) { %>
-          <span class="pet-tile-tag pet-tile-tag-status"><%= pet.status %></span>
+          <% 
+            let displayStatus = pet.status;
+            if (isSold) displayStatus = 'adopted';
+            else if (isReserved) displayStatus = 'pending';
+          %>
+          <span class="pet-tile-tag pet-tile-tag-status"><%= displayStatus %></span>
         <% } %>
       </div>
     </div>

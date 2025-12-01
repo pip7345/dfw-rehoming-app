@@ -71,7 +71,12 @@
         <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
       <% } %>
       <% if (pet.status) { %>
-        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= pet.status %></span>
+        <% 
+          let displayStatus = pet.status;
+          if (isSold) displayStatus = 'adopted';
+          else if (isReserved) displayStatus = 'pending';
+        %>
+        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= displayStatus %></span>
       <% } %>
     </div>
     

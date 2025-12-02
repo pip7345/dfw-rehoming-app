@@ -23,6 +23,7 @@ Example (using our site):
 ```
 
 Owner: pip7345
+Link: https://cloud.umami.is/analytics/us/websites/fdfa9645-4750-41cc-a302-e68a0e658048
 
 ## Installing on the App
 We include the Umami snippet on every page via a shared partial:

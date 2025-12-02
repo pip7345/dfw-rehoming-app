@@ -13,7 +13,7 @@ export const PetsRepo = {
         });
     },
     async search(params) {
-        const { query, breed, age, animal_type, size, gender, minPrice, maxPrice, includeHidden = false, includeExpired = false, sortBy = 'newest', limit = 50, offset = 0 } = params;
+        const { query, breed, age, animal_type, size, gender, minPrice, maxPrice, includeHidden = false, includeExpired = false, includeReserved = false, sortBy = 'newest', limit = 50, offset = 0 } = params;
         const where = {
             AND: []
         };
@@ -109,12 +109,11 @@ export const PetsRepo = {
         if (!includeHidden) {
             where.AND.push({ status: { not: 'hidden' } });
         }
-        // Exclude sold and reserved pets from public view
-        where.AND.push({
-            status: {
-                notIn: ['sold']
-            }
-        });
+        // Exclude sold always; conditionally exclude reserved unless included
+        const excludedStatuses = ['sold'];
+        if (!includeReserved)
+            excludedStatuses.push('reserved');
+        where.AND.push({ status: { notIn: excludedStatuses } });
         // Exclude expired unless requested
         if (!includeExpired) {
             where.AND.push({ expiry_date: { gte: new Date() } });

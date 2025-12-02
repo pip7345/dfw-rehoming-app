@@ -294,7 +294,7 @@ router.post('/login', (req, res, next) => {
     }
     req.logIn(user, (err2) => {
       if (err2) return next(err2);
-      return res.redirect('/');
+      return res.redirect('/dashboard');
     });
   })(req, res, next);
 });
@@ -313,7 +313,7 @@ router.post('/register', async (req, res) => {
     const user = await UsersRepo.create({ email, password_hash: hash, display_name, email_verified: false });
     req.logIn(user, (err) => {
       if (err) return res.render('register', { error: 'Registration succeeded but login failed' });
-      return res.redirect('/');
+      return res.redirect('/dashboard');
     });
   } catch (e) {
     res.render('register', { error: 'Could not register' });

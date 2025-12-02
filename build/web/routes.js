@@ -19,7 +19,7 @@ router.get('/register', (req, res) => {
 // Homepage with pet search
 router.get('/', async (req, res) => {
     try {
-        const { q: query, animal_type, age, size, gender, min_price, max_price } = req.query;
+        const { q: query, animal_type, age, size, gender, min_price, max_price, show_reserved } = req.query;
         const pets = await PetsRepo.search({
             query: query,
             animal_type: animal_type,
@@ -30,6 +30,7 @@ router.get('/', async (req, res) => {
             maxPrice: max_price ? parseFloat(max_price) : undefined,
             includeHidden: false,
             includeExpired: false,
+            includeReserved: !!show_reserved && (show_reserved === '1' || show_reserved === 'on' || show_reserved === 'true'),
             sortBy: 'newest',
             limit: 50
         });
@@ -43,7 +44,8 @@ router.get('/', async (req, res) => {
                 size: size || '',
                 gender: gender || '',
                 min_price: min_price || '',
-                max_price: max_price || ''
+                max_price: max_price || '',
+                show_reserved: (!!show_reserved && (show_reserved === '1' || show_reserved === 'on' || show_reserved === 'true')) ? '1' : ''
             },
             cloudinaryCloud: CLOUDINARY_CLOUD,
             cloudinaryPadRgb: CLOUDINARY_PAD_RGB
@@ -110,7 +112,6 @@ router.get('/create-pack', async (req, res) => {
             packName: pack?.name || '',
             packDescription: pack?.description || '',
             packCloudinaryIds: pack?.cloudinary_public_ids || [],
-            isSinglePet: false,
             pets,
             cloudinaryCloud: CLOUDINARY_CLOUD,
             cloudinaryPreset: CLOUDINARY_PRESET,
@@ -269,7 +270,7 @@ router.post('/login', (req, res, next) => {
         req.logIn(user, (err2) => {
             if (err2)
                 return next(err2);
-            return res.redirect('/');
+            return res.redirect('/dashboard');
         });
     })(req, res, next);
 });
@@ -288,7 +289,7 @@ router.post('/register', async (req, res) => {
         req.logIn(user, (err) => {
             if (err)
                 return res.render('register', { error: 'Registration succeeded but login failed' });
-            return res.redirect('/');
+            return res.redirect('/dashboard');
         });
     }
     catch (e) {

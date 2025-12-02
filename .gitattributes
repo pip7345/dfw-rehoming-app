@@ -1,0 +1,27 @@
+# Set default behavior to automatically normalize line endings to CRLF on Windows
+* text=auto eol=crlf
+
+# Explicitly declare text files you want to always be normalized and converted to CRLF on checkout
+*.ts text eol=crlf
+*.js text eol=crlf
+*.json text eol=crlf
+*.ejs text eol=crlf
+*.html text eol=crlf
+*.css text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
+*.sql text eol=crlf
+*.prisma text eol=crlf
+*.env text eol=crlf
+
+# Denote binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

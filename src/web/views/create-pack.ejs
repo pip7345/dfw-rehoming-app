@@ -199,32 +199,20 @@
     <!-- Pack Details Section -->
     <div class="card mb-8">
       <div class="mb-6">
-        <h2 class="text-xl font-bold text-text-primary m-0">Pack Details</h2>
+        <h2 class="text-xl font-bold text-text-primary m-0">Pack or Pet Details</h2>
       </div>
       <form id="pack-form">
         <input type="hidden" name="pack_id" id="pack-id" value="<%= packId || '' %>" />
         
-        <div class="flex gap-4 items-start mb-4">
-          <div class="form-group" style="flex: 2;">
-            <label for="pack-name">Pack Name</label>
-            <input 
-              class="input"
-              type="text" 
-              name="name" 
-              id="pack-name" 
-              placeholder="e.g., The Smith Family Dogs"
-              value="<%= packName || '' %>" />
-          </div>
-          
-          <div class="checkbox-wrapper" style="align-self: flex-end; padding-bottom: 0.75rem;">
-            <input 
-              type="checkbox" 
-              name="single_pet" 
-              id="pack-single-pet" 
-              onchange="toggleSinglePet()"
-              <%= isSinglePet ? 'checked' : '' %> />
-            <label for="pack-single-pet">This is a single pet</label>
-          </div>
+        <div class="form-group mb-4">
+          <label for="pack-name">Name</label>
+          <input 
+            class="input"
+            type="text" 
+            name="name" 
+            id="pack-name" 
+            placeholder="e.g., The Smith Family Dogs"
+            value="<%= packName || '' %>" />
         </div>
 
         <div class="form-group">
@@ -234,7 +222,7 @@
             name="description" 
             id="pack-description" 
             rows="4" 
-            placeholder="Tell potential adopters about your dogs..."><%= packDescription || '' %></textarea>
+            placeholder="Tell potential adopters about your pet or pets..."><%= packDescription || '' %></textarea>
         </div>
       </form>
     </div>
@@ -266,7 +254,7 @@
     <!-- Pack Gallery Section -->
     <div class="card">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-text-primary m-0">Pack Gallery</h2>
+        <h2 class="text-xl font-bold text-text-primary m-0">Gallery</h2>
         <button type="button" class="btn btn-primary" onclick="openPackGalleryWidget()">+ Add Photos</button>
       </div>
       <p class="text-text-secondary text-sm mb-4">Add additional photos for your pack listing. These will appear in a gallery alongside pet photos.</p>
@@ -355,31 +343,15 @@
       }, 4000);
     }
 
-    // Toggle single pet mode
-    function toggleSinglePet() {
-      const isSinglePet = document.getElementById('pack-single-pet').checked;
-      const packNameInput = document.getElementById('pack-name');
-      const packDescInput = document.getElementById('pack-description');
-      
-      packNameInput.disabled = isSinglePet;
-      packDescInput.disabled = isSinglePet;
-      
-      if (isSinglePet) {
-        packNameInput.value = '';
-        packDescInput.value = '';
-      }
-    }
-
     // Save pack details only
     async function savePack() {
-      const isSinglePet = document.getElementById('pack-single-pet').checked;
       const packName = document.getElementById('pack-name').value.trim();
       const packDescription = document.getElementById('pack-description').value.trim();
       const packId = document.getElementById('pack-id').value;
       
       const data = {
         name: packName || 'My Pet Listing',
-        description: isSinglePet ? '' : packDescription,
+        description: packDescription,
         cloudinary_public_ids: packGalleryPhotos
       };
       
@@ -423,13 +395,12 @@
       }
       
       // Create pack first
-      const isSinglePet = document.getElementById('pack-single-pet').checked;
       const packName = document.getElementById('pack-name').value.trim();
       const packDescription = document.getElementById('pack-description').value.trim();
       
       const data = {
         name: packName || 'My Pet Listing',
-        description: isSinglePet ? '' : packDescription
+        description: packDescription
       };
       
       try {
@@ -518,11 +489,6 @@
     // Open add pet modal
     function openAddPetModal() {
       window.openPetEditModal(null, 'new');
-    }
-
-    // Initialize single pet toggle on load
-    if (document.getElementById('pack-single-pet').checked) {
-      toggleSinglePet();
     }
 
     // Pack Gallery Functions

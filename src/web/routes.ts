@@ -126,7 +126,6 @@ router.get('/create-pack', async (req, res) => {
       packName: pack?.name || '',
       packDescription: pack?.description || '',
       packCloudinaryIds: pack?.cloudinary_public_ids || [],
-      isSinglePet: false,
       pets,
       cloudinaryCloud: CLOUDINARY_CLOUD,
       cloudinaryPreset: CLOUDINARY_PRESET,

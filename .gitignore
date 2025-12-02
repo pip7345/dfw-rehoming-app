@@ -4,3 +4,7 @@ build
 .env
 
 /generated/prisma
+
+# Planning docs - exclude build output but track source
+planning-docs/node_modules
+planning-docs/build

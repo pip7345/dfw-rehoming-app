@@ -16,7 +16,7 @@
   
   // If visitor, navigate to pack page; if lister, open modal
   const tileClickAction = isLister 
-    ? `openPetDetailsModal('${pet.id}')`
+    ? `openPetEditModal('${pet.id}', '${pet.pack_id}')`
     : `window.location.href='/pack/${pet.pack_id}'`;
 %>
 

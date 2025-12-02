@@ -62,25 +62,7 @@
     
     <p class="m-0 text-text-secondary text-[0.9375rem]"><%= pet.breed || 'Mixed Breed' %></p>
     
-    <div class="flex gap-2 flex-wrap">
-      <% if (pet.animal_type) { %>
-        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
-      <% } %>
-      <% if (pet.age) { %>
-        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
-      <% } %>
-      <% if (pet.size) { %>
-        <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
-      <% } %>
-      <% if (pet.status) { %>
-        <% 
-          let displayStatus = pet.status;
-          if (isSold) displayStatus = 'adopted';
-          else if (isReserved) displayStatus = 'pending';
-        %>
-        <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= displayStatus %></span>
-      <% } %>
-    </div>
+    <%- include('pet-tile-meta', { pet, isLister, showBreedTag: false, showStatusTag: true }) %>
     
     <% if (pet.custom_availability_date) { %>
       <div class="flex flex-col gap-1">

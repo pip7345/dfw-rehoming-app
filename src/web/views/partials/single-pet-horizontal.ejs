@@ -34,23 +34,7 @@
       <% if (pet.breed) { %>
         <p class="m-0 text-text-secondary text-sm mb-3"><%= pet.breed %></p>
       <% } %>
-      <div class="flex gap-2 flex-wrap mb-4">
-        <% if (pet.animal_type) { %>
-          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.animal_type %></span>
-        <% } %>
-        <% if (pet.age) { %>
-          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.age.replace(/_/g, ' ') %></span>
-        <% } %>
-        <% if (pet.size) { %>
-          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary capitalize"><%= pet.size %></span>
-        <% } %>
-        <% if (pet.gender && pet.gender !== 'unspecified') { %>
-          <span class="inline-block py-1 px-2.5 bg-bg-tertiary rounded-full text-xs text-text-secondary"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
-        <% } %>
-        <% if (displayStatus) { %>
-          <span class="inline-block py-1 px-2.5 bg-accent/20 text-accent-light rounded-full text-xs font-medium capitalize"><%= displayStatus %></span>
-        <% } %>
-      </div>
+      <%- include('pet-tile-meta', { pet, isLister: false, showBreedTag: false, showStatusTag: true }) %>
 
       <% if (pet.description) { %>
         <div class="mt-4">

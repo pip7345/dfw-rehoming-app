@@ -1,0 +1,48 @@
+<%
+  // Pet Tile Meta - Reusable tag display component
+  // Props: pet, isLister (boolean, optional), showBreed (boolean, default true), showStatus (boolean, default true)
+  const showBreed = typeof showBreedTag !== 'undefined' ? showBreedTag : true;
+  const showStatus = typeof showStatusTag !== 'undefined' ? showStatusTag : true;
+  const isSold = pet.status === 'adopted' || pet.status === 'sold';
+  const isReserved = pet.status === 'pending' || pet.status === 'reserved';
+  const isUnpaid = isLister && !pet.Receipt_id;
+%>
+
+<div class="pet-tile-meta">
+  <% if (showBreed) { %>
+    <% if (pet.breed) { %>
+      <span class="pet-tile-tag"><%= pet.breed %></span>
+    <% } else { %>
+      <span class="pet-tile-tag">Mixed Breed</span>
+    <% } %>
+  <% } %>
+  
+  <% if (pet.animal_type) { %>
+    <span class="pet-tile-tag"><%= pet.animal_type %></span>
+  <% } %>
+  
+  <% if (pet.age) { %>
+    <span class="pet-tile-tag"><%= pet.age.replace(/_/g, ' ') %></span>
+  <% } %>
+  
+  <% if (pet.size) { %>
+    <span class="pet-tile-tag"><%= pet.size %></span>
+  <% } %>
+  
+  <% if (pet.gender && pet.gender !== 'unspecified') { %>
+    <span class="pet-tile-tag"><%= pet.gender === 'male' ? 'Male' : 'Female' %></span>
+  <% } %>
+  
+  <% if (isUnpaid) { %>
+    <span class="pet-tile-tag" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 500;">⚠️ Payment Pending</span>
+  <% } %>
+  
+  <% if (showStatus && pet.status) { %>
+    <% 
+      let displayStatus = pet.status;
+      if (isSold) displayStatus = 'adopted';
+      else if (isReserved) displayStatus = 'hold';
+    %>
+    <span class="pet-tile-tag pet-tile-tag-status"><%= displayStatus %></span>
+  <% } %>
+</div>

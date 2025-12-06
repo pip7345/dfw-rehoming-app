@@ -22,4 +22,13 @@ export const UsersRepo = {
   updateByEmail(email: string, data: Partial<{ facebook_id: string; email_verified: boolean; display_name: string }>) {
     return prisma.users.update({ where: { email }, data });
   },
+  updatePasswordById(id: string, password_hash: string) {
+    return prisma.users.update({ where: { id }, data: { password_hash } });
+  },
+  updatePasswordByEmail(email: string, password_hash: string) {
+    return prisma.users.update({ where: { email }, data: { password_hash } });
+  },
+  findAll() {
+    return prisma.users.findMany({ orderBy: { created_at: 'desc' } });
+  },
 };

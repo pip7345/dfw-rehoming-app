@@ -15,4 +15,13 @@ export const UsersRepo = {
     updateByEmail(email, data) {
         return prisma.users.update({ where: { email }, data });
     },
+    updatePasswordById(id, password_hash) {
+        return prisma.users.update({ where: { id }, data: { password_hash } });
+    },
+    updatePasswordByEmail(email, password_hash) {
+        return prisma.users.update({ where: { email }, data: { password_hash } });
+    },
+    findAll() {
+        return prisma.users.findMany({ orderBy: { created_at: 'desc' } });
+    },
 };

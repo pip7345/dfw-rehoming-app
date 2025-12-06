@@ -11,6 +11,9 @@
     <a href="https://t.me/dfwrehoming" target="_blank" class="btn btn-secondary">Telegram</a>
     <% if (typeof user !== 'undefined' && user) { %>
       <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+      <% if (user.role === 'admin') { %>
+        <a href="/admin" class="btn btn-secondary">Admin</a>
+      <% } %>
       <a href="/logout" onclick="event.preventDefault(); this.nextElementSibling.submit();" class="btn btn-secondary">Logout</a>
       <form method="POST" action="/logout" class="hidden">
         <button type="submit"></button>
@@ -25,12 +28,15 @@
     ☰
   </button>
 </nav>
-
 <!-- Mobile Menu Dropdown -->
 <div id="mobile-menu" class="hidden md:hidden bg-bg-secondary border-b border-border">
   <div class="flex flex-col">
     <% if (typeof user !== 'undefined' && user) { %>
       <a href="/dashboard" class="block px-6 py-4 text-text-primary hover:bg-bg-hover border-b border-border">Dashboard</a>
+      <a href="/profile" class="block px-6 py-4 text-text-primary hover:bg-bg-hover border-b border-border">Profile</a>
+      <% if (user.role === 'admin') { %>
+        <a href="/admin" class="block px-6 py-4 text-text-primary hover:bg-bg-hover border-b border-border">Admin</a>
+      <% } %>
       <a href="/logout" onclick="event.preventDefault(); this.nextElementSibling.submit();" class="block px-6 py-4 text-text-primary hover:bg-bg-hover border-b border-border">Logout</a>
       <form method="POST" action="/logout" class="hidden">
         <button type="submit"></button>
@@ -42,6 +48,7 @@
     <a href="/about" class="block px-6 py-4 text-text-primary hover:bg-bg-hover border-b border-border">About</a>
     <a href="https://t.me/dfwrehoming" target="_blank" class="block px-6 py-4 text-text-primary hover:bg-bg-hover">Telegram</a>
   </div>
+
 </div>
 
 <script>

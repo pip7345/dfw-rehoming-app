@@ -324,6 +324,133 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Profile page
+router.get('/profile', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+  res.render('profile', { user: req.user });
+});
+
+// Change password
+router.post('/profile/change-password', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+
+  const { current_password, new_password, confirm_password } = req.body;
+
+  if (new_password !== confirm_password) {
+    return res.render('profile', { 
+      user: req.user, 
+      error: 'New passwords do not match' 
+    });
+  }
+
+  try {
+    const user = await UsersRepo.findById(req.user!.id);
+    if (!user || !user.password_hash) {
+      return res.render('profile', { 
+        user: req.user, 
+        error: 'Unable to update password' 
+      });
+    }
+
+    const bcrypt = await import('bcrypt');
+    const isValid = await bcrypt.compare(current_password, user.password_hash);
+    if (!isValid) {
+      return res.render('profile', { 
+        user: req.user, 
+        error: 'Current password is incorrect' 
+      });
+    }
+
+    const newHash = await bcrypt.hash(new_password, 10);
+    await UsersRepo.updatePasswordById(req.user!.id, newHash);
+
+    res.render('profile', { 
+      user: req.user, 
+      success: 'Password updated successfully!' 
+    });
+  } catch (err) {
+    console.error('Error changing password:', err);
+    res.render('profile', { 
+      user: req.user, 
+      error: 'Failed to update password' 
+    });
+  }
+});
+
+// Admin page - restricted to admin role
+router.get('/admin', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+
+  if (req.user!.role !== 'admin') {
+    return res.status(403).render('error', { 
+      message: 'Access denied. Admin privileges required.',
+      user: req.user 
+    });
+  }
+
+  try {
+    const users = await UsersRepo.findAll();
+    res.render('admin', { user: req.user, users });
+  } catch (err) {
+    console.error('Error loading admin page:', err);
+    res.render('admin', { 
+      user: req.user, 
+      users: [], 
+      error: 'Failed to load users' 
+    });
+  }
+});
+
+// Admin reset password
+router.post('/admin/reset-password', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+
+  if (req.user!.role !== 'admin') {
+    return res.status(403).send('Access denied');
+  }
+
+  const { user_email, new_password } = req.body;
+
+  try {
+    const targetUser = await UsersRepo.findByEmail(user_email);
+    if (!targetUser) {
+      const users = await UsersRepo.findAll();
+      return res.render('admin', { 
+        user: req.user, 
+        users,
+        error: `User with email ${user_email} not found` 
+      });
+    }
+
+    const bcrypt = await import('bcrypt');
+    const newHash = await bcrypt.hash(new_password, 10);
+    await UsersRepo.updatePasswordByEmail(user_email, newHash);
+
+    const users = await UsersRepo.findAll();
+    res.render('admin', { 
+      user: req.user, 
+      users,
+      success: `Password reset successfully for ${user_email}` 
+    });
+  } catch (err) {
+    console.error('Error resetting password:', err);
+    const users = await UsersRepo.findAll();
+    res.render('admin', { 
+      user: req.user, 
+      users,
+      error: 'Failed to reset password' 
+    });
+  }
+});
+
 // Game route
 router.get('/games/space_trader', (req, res) => {
   res.sendFile('games/index.html', { root: './src/web/public' });

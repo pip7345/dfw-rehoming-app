@@ -63,7 +63,10 @@ export const PacksRepo = {
     });
   },
 
-  delete(id: string) {
+  async delete(id: string) {
+    // First delete all pets associated with this pack
+    await prisma.pets.deleteMany({ where: { pack_id: id } });
+    // Then delete the pack
     return prisma.packs.delete({ where: { id } });
   },
 

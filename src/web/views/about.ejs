@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About - DFW Dog Rehoming</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="/tailwind.css" rel="stylesheet" />
+  <%- include('partials/analytics-umami') %>
+</head>
+<body class="min-h-screen flex flex-col bg-bg-primary">
+  <%- include('partials/nav-bar', { user: typeof user !== 'undefined' ? user : undefined }) %>
+
+  <div class="flex-1">
+    <div class="max-w-4xl mx-auto px-4 py-12">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-text-primary mb-4">About DFW Rehoming</h1>
+        <p class="text-xl text-text-secondary">Connecting pet owners with loving homes in the Dallas-Fort Worth area</p>
+      </div>
+
+      <!-- Beta Notice -->
+      <div class="bg-blue-600 text-white rounded-xl p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-3">🎉 We're in Beta!</h2>
+        <p class="text-lg mb-3">DFW Rehoming is currently in beta testing and completely <strong>free to use</strong>. We're working hard to improve the platform and welcome your feedback!</p>
+        <a href="https://t.me/dfwrehoming" target="_blank" class="inline-block bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Join our Telegram channel</a>
+      </div>
+
+      <!-- Main Content -->
+      <div class="space-y-8 text-text-secondary">
+        <!-- Our Purpose -->
+        <section>
+          <h2 class="text-2xl font-bold text-text-primary mb-4">Our Purpose</h2>
+          <p class="leading-relaxed mb-4">
+            DFW Rehoming is a community platform designed to connect pet owners who need to rehome their pets with individuals and families looking to provide loving homes. We understand that circumstances change, and sometimes pet owners need help finding new homes for their beloved companions.
+          </p>
+          <p class="leading-relaxed">
+            Our platform makes it easy to create listings, share photos and information about pets, and connect directly with potential adopters in the DFW area.
+          </p>
+        </section>
+
+        <!-- What We Do -->
+        <section>
+          <h2 class="text-2xl font-bold text-text-primary mb-4">What We Do</h2>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✓</span>
+              <span>Provide a platform for pet owners to list pets that need rehoming</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✓</span>
+              <span>Facilitate communication between pet owners and potential adopters</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✓</span>
+              <span>Allow users to share detailed information, photos, and contact preferences</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✓</span>
+              <span>Allow pet owners to update the status of their pets to give potential adopters real-time updates of availability</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✓</span>
+              <span>Support the DFW community in finding homes for pets in need</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- What We Don't Do -->
+        <section>
+          <h2 class="text-2xl font-bold text-text-primary mb-4">What We Don't Do</h2>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✗</span>
+              <span>We do <strong>not</strong> actively sell pets or act as a pet broker</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✗</span>
+              <span>We do <strong>not</strong> facilitate, process, or assist with financial transactions between parties</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✗</span>
+              <span>We do <strong>not</strong> conduct background checks or verify user information</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✗</span>
+              <span>We do <strong>not</strong> provide veterinary advice or guarantee pet health</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-2xl">✗</span>
+              <span>We do <strong>not</strong> mediate disputes or assume liability for transactions</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Important Disclaimers -->
+        <section>
+          <h2 class="text-2xl font-bold text-text-primary mb-4">⚠️ Important Disclaimers</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold text-text-primary mb-2">User Responsibility</h3>
+              <p class="leading-relaxed">
+                All interactions, transactions, and arrangements between pet owners and potential adopters are the sole responsibility of the parties involved. Users must conduct their own due diligence, including meeting in safe public locations, verifying information, and ensuring compliance with all applicable laws.
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-text-primary mb-2">No Warranties or Guarantees</h3>
+              <p class="leading-relaxed">
+                DFW Rehoming provides this platform "as is" without any warranties or guarantees regarding the accuracy of listings, the suitability of pets, or the intentions of users. We are not responsible for the condition, temperament, or health of any pets listed on our platform.
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-text-primary mb-2">Legal Compliance</h3>
+              <p class="leading-relaxed">
+                Users are responsible for complying with all local, state, and federal laws regarding pet ownership, rehoming, and any associated fees or donations. This includes ensuring proper vaccination records, ownership documentation, and adherence to local animal control regulations.
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-text-primary mb-2">Safety First</h3>
+              <p class="leading-relaxed">
+                Always meet potential adopters in safe, public locations. Never share sensitive personal information until you feel comfortable. Trust your instincts and report any suspicious activity to local authorities.
+              </p>
+            </div>
+            
+            <div>
+              <h3 class="font-semibold text-text-primary mb-2">Limitation of Liability</h3>
+              <p class="leading-relaxed">
+                DFW Rehoming, its owners, operators, and affiliates shall not be liable for any damages, losses, or injuries arising from the use of this platform or any interactions between users. By using this service, you agree to indemnify and hold harmless DFW Rehoming from any claims or disputes.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contact -->
+        <section class="text-center">
+          <h2 class="text-2xl font-bold text-text-primary mb-4">Questions or Feedback?</h2>
+          <p class="mb-6">
+            We're always looking to improve! Join our Telegram community to share feedback, report issues, or ask questions.
+          </p>
+          <a href="https://t.me/dfwrehoming" target="_blank" class="btn btn-primary inline-flex items-center gap-2">
+            <span>💬</span>
+            Join Telegram Channel
+          </a>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer', { user: typeof user !== 'undefined' ? user : undefined }) %>
+</body>
+</html>

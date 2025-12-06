@@ -102,8 +102,9 @@
         %>
           <div class="pack-card" data-pack-id="<%= pack.id %>">
             <div class="pack-header">
-              <div class="flex items-center justify-between gap-4 w-full">
-                <div class="flex-1">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                <!-- Pack name - shown at top on desktop, bottom on mobile -->
+                <div class="flex-1 order-2 md:order-1">
                   <h3 class="pack-name">
                     <%= pack.name %>
                     <% if (hasUnpaidPets) { %>
@@ -111,7 +112,8 @@
                     <% } %>
                   </h3>
                 </div>
-                <div class="pack-actions flex gap-3 flex-wrap">
+                <!-- Pack actions - shown at top on mobile, right on desktop -->
+                <div class="pack-actions grid grid-cols-2 md:flex gap-3 order-1 md:order-2">
                   <% if (hasUnpaidPets) { %>
                     <a href="/checkout?packId=<%= pack.id %>" class="btn btn-primary">💳 Checkout</a>
                   <% } %>
@@ -876,5 +878,7 @@
     // Set flag for pet details modal to show edit button
     window.isListerView = true;
   </script>
+  
+  <%- include('partials/footer', { user }) %>
 </body>
 </html>

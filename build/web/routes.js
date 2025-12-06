@@ -16,6 +16,9 @@ router.get('/login', (req, res) => {
 router.get('/register', (req, res) => {
     res.render('register');
 });
+router.get('/about', (req, res) => {
+    res.render('about', { user: req.user });
+});
 // Homepage with pet search
 router.get('/', async (req, res) => {
     try {

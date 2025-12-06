@@ -89,7 +89,7 @@
   
   /* Navigation */
   .nav-bar {
-    @apply flex justify-between items-center p-4 bg-bg-secondary border-b border-border;
+    @apply flex justify-between items-center p-4 pl-8 bg-bg-secondary border-b border-border;
   }
   
   .nav-logo {

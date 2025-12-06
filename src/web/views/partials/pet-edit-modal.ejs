@@ -194,9 +194,9 @@
         updateEditPhotoPreview();
         
         // Show receipt info if exists
-        if (pet.receipt_id) {
+        if (pet.Receipt_id) {
           document.getElementById('edit-receipt-section').style.display = 'block';
-          document.getElementById('edit-receipt-content').innerHTML = '🧾 <a href="/receipt/' + pet.receipt_id + '" target="_blank">View Receipt</a>';
+          document.getElementById('edit-receipt-content').innerHTML = '🧾 <a href="/receipt/' + pet.Receipt_id + '" target="_blank">View Receipt</a>';
         } else {
           document.getElementById('edit-receipt-section').style.display = 'block';
           document.getElementById('edit-receipt-content').innerHTML = '⚠️ Not yet paid';

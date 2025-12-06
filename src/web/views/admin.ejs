@@ -53,6 +53,7 @@
                 <th class="text-left py-3 px-4">Email</th>
                 <th class="text-left py-3 px-4">Display Name</th>
                 <th class="text-left py-3 px-4">Created</th>
+                <th class="text-left py-3 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -62,11 +63,17 @@
                     <td class="py-3 px-4"><%= u.email %></td>
                     <td class="py-3 px-4"><%= u.display_name %></td>
                     <td class="py-3 px-4"><%= new Date(u.created_at).toLocaleDateString() %></td>
+                    <td class="py-3 px-4">
+                      <form method="POST" action="/admin/impersonate" class="inline">
+                        <input type="hidden" name="user_id" value="<%= u.id %>" />
+                        <button type="submit" class="btn btn-secondary text-sm">Login As</button>
+                      </form>
+                    </td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="3" class="py-6 text-center text-text-muted">No users found</td>
+                  <td colspan="4" class="py-6 text-center text-text-muted">No users found</td>
                 </tr>
               <% } %>
             </tbody>

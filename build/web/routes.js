@@ -412,6 +412,50 @@ router.post('/admin/reset-password', async (req, res) => {
         });
     }
 });
+// Admin impersonate user - login as another user without password
+router.post('/admin/impersonate', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect('/login');
+    }
+    if (req.user.role !== 'admin') {
+        return res.status(403).send('Access denied');
+    }
+    const { user_id } = req.body;
+    try {
+        const targetUser = await UsersRepo.findById(user_id);
+        if (!targetUser) {
+            const users = await UsersRepo.findAll();
+            return res.render('admin', {
+                user: req.user,
+                users,
+                error: 'User not found'
+            });
+        }
+        // Log out current admin and log in as target user
+        req.logout((err) => {
+            if (err) {
+                console.error('Error logging out:', err);
+                return res.redirect('/admin');
+            }
+            req.logIn(targetUser, (err2) => {
+                if (err2) {
+                    console.error('Error logging in as user:', err2);
+                    return res.redirect('/login');
+                }
+                return res.redirect('/dashboard');
+            });
+        });
+    }
+    catch (err) {
+        console.error('Error impersonating user:', err);
+        const users = await UsersRepo.findAll();
+        res.render('admin', {
+            user: req.user,
+            users,
+            error: 'Failed to impersonate user'
+        });
+    }
+});
 // Game route
 router.get('/games/space_trader', (req, res) => {
     res.sendFile('games/index.html', { root: './src/web/public' });

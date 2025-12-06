@@ -223,6 +223,15 @@ router.get('/checkout', async (req, res) => {
       if (pack) {
         packName = pack.name;
         unpaidPets = (pack.pets || []).filter(p => !p.Receipt_id);
+        
+        // If no unpaid pets but pack has paid pets, redirect to receipt
+        if (unpaidPets.length === 0 && pack.pets && pack.pets.length > 0) {
+          const paidPets = pack.pets.filter(p => p.Receipt_id);
+          if (paidPets.length > 0) {
+            const receiptId = paidPets[0].Receipt_id;
+            return res.redirect(`/receipt/${receiptId}`);
+          }
+        }
       }
     }
     
@@ -447,6 +456,55 @@ router.post('/admin/reset-password', async (req, res) => {
       user: req.user, 
       users,
       error: 'Failed to reset password' 
+    });
+  }
+});
+
+// Admin impersonate user - login as another user without password
+router.post('/admin/impersonate', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/login');
+  }
+
+  if (req.user!.role !== 'admin') {
+    return res.status(403).send('Access denied');
+  }
+
+  const { user_id } = req.body;
+
+  try {
+    const targetUser = await UsersRepo.findById(user_id);
+    if (!targetUser) {
+      const users = await UsersRepo.findAll();
+      return res.render('admin', { 
+        user: req.user, 
+        users,
+        error: 'User not found' 
+      });
+    }
+
+    // Log out current admin and log in as target user
+    req.logout((err) => {
+      if (err) {
+        console.error('Error logging out:', err);
+        return res.redirect('/admin');
+      }
+      
+      req.logIn(targetUser, (err2) => {
+        if (err2) {
+          console.error('Error logging in as user:', err2);
+          return res.redirect('/login');
+        }
+        return res.redirect('/dashboard');
+      });
+    });
+  } catch (err) {
+    console.error('Error impersonating user:', err);
+    const users = await UsersRepo.findAll();
+    res.render('admin', { 
+      user: req.user, 
+      users,
+      error: 'Failed to impersonate user' 
     });
   }
 });
